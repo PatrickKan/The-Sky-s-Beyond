@@ -1,6 +1,6 @@
-# Project Proposal
+﻿# Project Proposal
 
-The Sky’s Beyond takes place in the expansive world of outer space. Within a triangular spaceship, you explore the hues of planets, the darkness of space, and the light of stars. It utilizes miniature sized planets alongside traditional physics, which would cause a spaceship to become pulled by the gravity of planets. However, one must be careful not to be pulled into a planet’s grasp -- causing a inevitable crash and end to the adventure.
+The Sky’s Beyond takes place in the expansive world of outer space. Within a triangular spaceship, you explore the hues of planets, the darkness of space, and the light of stars. It utilizes miniature sized planets alongside traditional physics, which would cause a spaceship to become pulled by the gravity of planets. However, one must be careful not to be pulled into a planet’s grasp -- causing a inevitable crash and end to the adventure. The screen will include level selection, and each level can be completed by bypassing the planet obstacles.
 
 ## Libraries included
 
@@ -19,4 +19,4 @@ In order to implement both planets and thrusters, I will use the acceleration ha
 
 There will be bars for the user to track velocity, and the game will scroll based on the position of the horizontal position of the spaceship. Additionally, an initial loading screen will guide the user into level selection, where they can pick their desired stage.
 
-Additionally, if there is time, then a possibility could be to implement a shaking screen upon destruction, portals, or moving enemies.
+Additionally, if there is time, then a possibility could be to implement a shaking screen upon destruction, portals, moving enemies, or boost to stats with an upgrade or level system.
