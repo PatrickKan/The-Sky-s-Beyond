@@ -36,7 +36,7 @@ void ofApp::update() {
 
 	if (bMouseForce) {
 		float strength = 8.0f;
-		float damping = 0.7f;
+		float damping = 1.0f;
 		float minDis = 100;
 		for (auto i = 0; i < circles.size(); i++) {
 			circles[i]->addAttractionPoint(mouseX, mouseY, strength);
@@ -46,12 +46,17 @@ void ofApp::update() {
 			customParticles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			customParticles[i]->setDamping(damping, damping);
 		}
+		for (auto i = 0; i < triangles.size(); i++) {
+			triangles[i]->addAttractionPoint(mouseX, mouseY, strength);
+			triangles[i]->setDamping(damping, damping);
+		}
 	}
 
 	// remove shapes offscreen
 	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
 
@@ -74,6 +79,10 @@ void ofApp::draw() {
 		customParticles[i]->draw();
 	}
 
+	for (int i = 0; i < triangles.size(); i++) {
+		triangles[i]->draw();
+	}
+
 	ofNoFill();
 	ofSetHexColor(0x444342);
 	if (drawing.size() == 0) {
@@ -88,6 +97,7 @@ void ofApp::draw() {
 	info += "Press [c] for circles\n";
 	info += "Press [b] for blocks\n";
 	info += "Press [z] for custom particle\n";
+	info += "Press [q] for triangles\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
 	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
 	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
@@ -124,6 +134,29 @@ void ofApp::keyPressed(int key) {
 		p->color.r = ofRandom(20, 100);
 		p->color.g = 0;
 		p->color.b = ofRandom(150, 255);
+	}
+
+	if (key == 'q') {
+		
+		auto tri = std::make_shared<ofxBox2dPolygon>();
+		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
+		//tri.edgeset(false);
+		tri->setPhysics(1.0, 0.7, 1.0);
+		tri->create(box2d.getWorld());
+
+		triangles.push_back(tri);
+
+		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
+		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
+			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
+			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
+		triangle->triangulatePoly();
+		triangle->setPhysics(1.0, 0.3, 0.3);
+		triangle->create(box2d.getWorld());*/
+
+		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
+
+		//triangles.push_back(triangle);
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;
