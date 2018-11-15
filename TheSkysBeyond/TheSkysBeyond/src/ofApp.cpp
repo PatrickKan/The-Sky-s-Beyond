@@ -6,8 +6,11 @@ static int nPts = 61 * 2;
 //--------------------------------------------------------------
 void ofApp::setup() {
 	ofSetVerticalSync(true);
-	ofBackgroundHex(0xfdefc2);
+	//ofBackgroundHex(0xfdefc2);
+	ofBackground(ofColor(255, 255, 255));
 	ofSetLogLevel(OF_LOG_NOTICE);
+
+	background.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\images\\space_background2.png");
 
 	bMouseForce = false;
 
@@ -46,6 +49,10 @@ void ofApp::update() {
 			customParticles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			customParticles[i]->setDamping(damping, damping);
 		}
+		for (auto i = 0; i < boxes.size(); i++) {
+			boxes[i]->addAttractionPoint(mouseX, mouseY, strength);
+			boxes[i]->setDamping(damping, damping);
+		}
 		for (auto i = 0; i < triangles.size(); i++) {
 			triangles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			triangles[i]->setDamping(damping, damping);
@@ -62,6 +69,8 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+	background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 
 	for (auto i = 0; i < circles.size(); i++) {
 		ofFill();
@@ -84,7 +93,8 @@ void ofApp::draw() {
 	}
 
 	ofNoFill();
-	ofSetHexColor(0x444342);
+	ofSetHexColor(0xffe6e6);
+	//ofSetHexColor(0x444342);
 	if (drawing.size() == 0) {
 		edgeLine.updateShape();
 		edgeLine.draw();
@@ -98,10 +108,13 @@ void ofApp::draw() {
 	info += "Press [b] for blocks\n";
 	info += "Press [z] for custom particle\n";
 	info += "Press [q] for triangles\n";
+	info += "MouseX: " + std::to_string(mouseX) + "\n";
+	info += "MouseY: " + std::to_string(mouseY) + "\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
 	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
 	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
-	ofSetHexColor(0x444342);
+	ofSetHexColor(0xffffff);
+	//ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
 }
 
@@ -138,6 +151,29 @@ void ofApp::keyPressed(int key) {
 
 	if (key == 'q') {
 		
+		auto tri = std::make_shared<ofxBox2dPolygon>();
+		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
+		//tri.edgeset(false);
+		tri->setPhysics(1.0, 0.7, 1.0);
+		tri->create(box2d.getWorld());
+
+		triangles.push_back(tri);
+
+		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
+		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
+			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
+			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
+		triangle->triangulatePoly();
+		triangle->setPhysics(1.0, 0.3, 0.3);
+		triangle->create(box2d.getWorld());*/
+
+		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
+
+		//triangles.push_back(triangle);
+	}
+
+	if (key == 'z') {
+
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
 		//tri.edgeset(false);

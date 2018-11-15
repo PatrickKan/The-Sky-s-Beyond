@@ -41,6 +41,8 @@ public:
 	bool bDrawLines = false;
 	bool bMouseForce = false;
 
+	ofImage background;
+
 	ofxBox2d box2d; // the box2d world
 	ofPolyline drawing; // we draw with this first
 	ofxBox2dEdge edgeLine; // the box2d edge/line shape (min 2 points)
