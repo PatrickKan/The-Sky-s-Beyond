@@ -22,6 +22,19 @@ public:
 
 };
 
+class Planet : public ofxBox2dCircle {
+
+	int radius;
+
+public:
+
+	Planet() {
+
+	}
+
+	int GetGravity();
+};
+
 // -------------------------------------------------
 class ofApp : public ofBaseApp {
 
@@ -42,6 +55,7 @@ public:
 	bool bMouseForce = false;
 
 	ofImage background;
+	ofCamera view;
 
 	ofxBox2d box2d; // the box2d world
 	ofPolyline drawing; // we draw with this first

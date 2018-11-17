@@ -12,10 +12,12 @@ void ofApp::setup() {
 
 	background.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\images\\space_background2.png");
 
+	view.setPosition(ofPoint(mouseX, mouseY,0));
+
 	bMouseForce = false;
 
 	box2d.init();
-	box2d.setGravity(0, 10);
+	box2d.setGravity(0, 0);
 	box2d.createGround();
 	box2d.setFPS(60.0);
 	box2d.registerGrabbing();
@@ -37,6 +39,10 @@ void ofApp::update() {
 
 	box2d.update();
 
+	view.move(mouseX, mouseY, 0);
+
+	//For planet force, strength should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
+	
 	if (bMouseForce) {
 		float strength = 8.0f;
 		float damping = 1.0f;
@@ -137,6 +143,15 @@ void ofApp::keyPressed(int key) {
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
 	}
 
+	if (key == '1') {
+		float r = ofRandom(30, 50);		// a random radius 4px - 20px
+		circles.push_back(std::make_shared<ofxBox2dCircle>());
+		circles.back()->setPhysics(0.0, 0.53, 0.1);
+		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
+
+
+	}
+
 	if (key == 'z') {
 
 		customParticles.push_back(std::make_shared<CustomParticle>());
@@ -172,14 +187,14 @@ void ofApp::keyPressed(int key) {
 		//triangles.push_back(triangle);
 	}
 
-	if (key == 'z') {
+	if (key == 'p') {
 
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
 		//tri.edgeset(false);
 		tri->setPhysics(1.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
-
+		tri->addForce(ofVec2f(0,1), 50);
 		triangles.push_back(tri);
 
 		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
@@ -193,6 +208,45 @@ void ofApp::keyPressed(int key) {
 		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
 
 		//triangles.push_back(triangle);
+	}
+
+	if (key == 'm') {
+
+		float r = 20;		// a random radius 4px - 20px
+		circles.push_back(std::make_shared<ofxBox2dCircle>());
+		circles.back()->setPhysics(3.0, 0.53, 0.1);
+		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
+		circles.back()->setVelocity(5.0, 0.0);
+	}
+
+	if (key == 'w')
+	{
+		triangles[0]->setVelocity(0, -5);
+	}
+
+	if (key == 'a')
+	{
+		triangles[0]->setVelocity(-5, 0);
+	}
+
+	if (key == 's')
+	{
+		triangles[0]->setVelocity(0, 5);
+	}
+
+	if (key == 'd')
+	{
+		triangles[0]->setVelocity(5, 0);
+	}
+
+	if (key == '0') //Follow mouse with constant velocity
+	{
+		int velocity = 5;
+		ofVec2f curr_pos = triangles[0]->getPosition();
+		int x_pos = curr_pos.x;
+		int y_pos = curr_pos.y;
+		float angle = atan((mouseX - x_pos) / (mouseY - y_pos));
+		triangles[0]->setVelocity(velocity*cos(angle), -velocity*sin(angle));
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;
