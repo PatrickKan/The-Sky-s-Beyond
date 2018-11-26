@@ -141,11 +141,13 @@ void ofApp::draw() {
 
 	for (int i = 0; i < triangles.size(); i++) {
 		ofFill();
-		ofSetHexColor(0x90d4e3);
+		ofSetHexColor(0xEE82EE);
 		triangles[i]->draw();
 	}
 
 	for (auto planet: planets) {
+		ofFill();
+		ofSetHexColor(0xcc3333);
 		planet->draw();
 	}
 
@@ -166,6 +168,8 @@ void ofApp::draw() {
 	info += "Press [b] for blocks\n";
 	info += "Press [z] for custom particle\n";
 	info += "Press [q] for triangles\n";
+	info += "Press [=] to create a planet with gravity\n";
+	info += "Press [0] to have the first triangle follow the mouse\n";
 	info += "MouseX: " + std::to_string(mouseX) + "\n";
 	info += "MouseY: " + std::to_string(mouseY) + "\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
@@ -182,7 +186,7 @@ void ofApp::keyPressed(int key) {
 	if (key == 'c') {
 		float r = ofRandom(4, 20);		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
-		circles.back()->setPhysics(3.0, 0.53, 0.1);
+		circles.back()->setPhysics(1.0, 0.53, 0.1);
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 
 	}
@@ -298,7 +302,7 @@ void ofApp::keyPressed(int key) {
 		int x_pos = curr_pos.x;
 		int y_pos = curr_pos.y;
 		
-		float angle = atan2(y_pos - mouseY, 0);
+		float angle = atan2(y_pos - mouseY, mouseX - x_pos);
 		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
 
 		cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
