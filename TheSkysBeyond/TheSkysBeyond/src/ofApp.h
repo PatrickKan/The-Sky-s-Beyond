@@ -64,4 +64,6 @@ public:
 	std::vector<std::shared_ptr<ofxBox2dRect>> boxes; // default box2d rects
 	std::vector<std::shared_ptr<ofxBox2dPolygon>> triangles;
 	std::vector<std::shared_ptr<CustomParticle>> customParticles; // this is a custom particle the extends a cirlce
+
+	std::vector<std::shared_ptr<ofxBox2dCircle>> planets;
 };

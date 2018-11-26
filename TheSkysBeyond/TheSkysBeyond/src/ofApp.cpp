@@ -41,7 +41,7 @@ void ofApp::update() {
 
 	view.move(mouseX, mouseY, 0);
 
-	//For planet force, strength should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
+	//For planet force, gravity should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
 	
 	if (bMouseForce) {
 		float strength = 8.0;
@@ -64,6 +64,40 @@ void ofApp::update() {
 			triangles[i]->setDamping(damping, damping);
 		}
 	}
+
+	//Planet gravity
+	for (auto planet : planets)
+	{
+		float gravity = 0;
+		ofVec2f planet_pos = planet->getPosition();
+		int planet_x = planet_pos.x;
+		int planet_y = planet_pos.y;
+
+		ofVec2f curr_pos = triangles[0]->getPosition();
+		int x_pos = curr_pos.x;
+		int y_pos = curr_pos.y;
+
+		//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
+		float distance = std::hypot(x_pos - planet_x, y_pos - planet_y);
+
+		int radius = planet->getRadius();
+
+		gravity = float(radius) / pow(distance, 2);
+
+		for (auto i = 0; i < circles.size(); i++) {
+			circles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		}
+		for (auto i = 0; i < customParticles.size(); i++) {
+			customParticles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		}
+		for (auto i = 0; i < boxes.size(); i++) {
+			boxes[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		}
+		for (auto i = 0; i < triangles.size(); i++) {
+			triangles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		}
+	}
+
 
 	// remove shapes offscreen
 	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
@@ -97,6 +131,13 @@ void ofApp::draw() {
 	for (int i = 0; i < triangles.size(); i++) {
 		triangles[i]->draw();
 	}
+
+	for (auto planet: planets) {
+		ofFill();
+		ofSetHexColor(0xcc3333);
+		planet->draw();
+	}
+
 
 	ofNoFill();
 	ofSetHexColor(0xffe6e6);
@@ -250,6 +291,15 @@ void ofApp::keyPressed(int key) {
 		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
 
 		cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
+	}
+
+	if (key == '=') //Create a planet with gravity and varying size
+	{
+		float r = ofRandom(40,70);		// a random radius 4px - 20px
+		planets.push_back(std::make_shared<ofxBox2dCircle>());
+		planets.back()->setPhysics(10000.0, 0, 0.1);
+		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
+
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;
