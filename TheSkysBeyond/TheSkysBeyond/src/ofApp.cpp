@@ -69,32 +69,27 @@ void ofApp::update() {
 	for (auto planet : planets)
 	{
 		float gravity = 0;
+
 		ofVec2f planet_pos = planet->getPosition();
+		int planet_rad = planet->getRadius();
 		int planet_x = planet_pos.x;
 		int planet_y = planet_pos.y;
 
-		ofVec2f curr_pos = triangles[0]->getPosition();
-		int x_pos = curr_pos.x;
-		int y_pos = curr_pos.y;
-
-		//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
-		float distance = std::hypot(x_pos - planet_x, y_pos - planet_y);
-
-		int radius = planet->getRadius();
-
-		gravity = float(radius) / pow(distance, 2);
-
-		for (auto i = 0; i < circles.size(); i++) {
-			circles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		for (auto circle: circles) {
+			gravity = ComputeGravity(circle->getPosition(), planet_pos, planet_rad);
+			circle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto i = 0; i < customParticles.size(); i++) {
-			customParticles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		for (auto particle: customParticles) {
+			gravity = ComputeGravity(particle->getPosition(), planet_pos, planet_rad);
+			particle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto i = 0; i < boxes.size(); i++) {
-			boxes[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		for (auto box: boxes) {
+			gravity = ComputeGravity(box->getPosition(), planet_pos, planet_rad);
+			box->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto i = 0; i < triangles.size(); i++) {
-			triangles[i]->addAttractionPoint(planet_x, planet_y, gravity);
+		for (auto triangle: triangles) {
+			gravity = ComputeGravity(triangle->getPosition(), planet_pos, planet_rad);
+			triangle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
 	}
 
@@ -104,6 +99,22 @@ void ofApp::update() {
 	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+}
+
+float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad)
+{
+	int x_pos = curr_pos.x;
+	int y_pos = curr_pos.y;
+
+	int planet_x = planet_pos.x;
+	int planet_y = planet_pos.y;
+
+	//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
+	float distance = std::hypot(x_pos - planet_x, y_pos - planet_y);
+
+	float gravity = float(planet_rad) / pow(distance, 2);
+
+	return gravity;
 }
 
 
@@ -129,12 +140,12 @@ void ofApp::draw() {
 	}
 
 	for (int i = 0; i < triangles.size(); i++) {
+		ofFill();
+		ofSetHexColor(0x90d4e3);
 		triangles[i]->draw();
 	}
 
 	for (auto planet: planets) {
-		ofFill();
-		ofSetHexColor(0xcc3333);
 		planet->draw();
 	}
 

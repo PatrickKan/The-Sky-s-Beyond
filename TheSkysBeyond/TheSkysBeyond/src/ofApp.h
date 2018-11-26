@@ -49,6 +49,9 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 
+	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
+
+
 	float px = 0;
 	float py = 0;
 	bool bDrawLines = false;
