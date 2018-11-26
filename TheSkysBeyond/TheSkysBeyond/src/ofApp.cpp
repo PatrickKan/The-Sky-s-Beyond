@@ -44,7 +44,7 @@ void ofApp::update() {
 	//For planet force, strength should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
 	
 	if (bMouseForce) {
-		float strength = 8.0f;
+		float strength = 8.0;
 		float damping = 1.0f;
 		float minDis = 100;
 		for (auto i = 0; i < circles.size(); i++) {
@@ -245,8 +245,11 @@ void ofApp::keyPressed(int key) {
 		ofVec2f curr_pos = triangles[0]->getPosition();
 		int x_pos = curr_pos.x;
 		int y_pos = curr_pos.y;
-		float angle = atan((mouseX - x_pos) / (mouseY - y_pos));
-		triangles[0]->setVelocity(velocity*cos(angle), -velocity*sin(angle));
+		
+		float angle = atan2(y_pos - mouseY, 0);
+		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
+
+		cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;
