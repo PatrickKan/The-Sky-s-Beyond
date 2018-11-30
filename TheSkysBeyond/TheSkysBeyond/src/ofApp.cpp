@@ -15,6 +15,7 @@ void ofApp::setup() {
 	view.setPosition(ofPoint(mouseX, mouseY,0));
 
 	bMouseForce = false;
+	followMouse = false;
 
 	box2d.init();
 	box2d.setGravity(0, 0);
@@ -65,6 +66,17 @@ void ofApp::update() {
 		}
 	}
 
+	if (followMouse && triangles[0])
+	{
+		int velocity = 5;
+		ofVec2f curr_pos = triangles[0]->getPosition();
+		int x_pos = curr_pos.x;
+		int y_pos = curr_pos.y;
+
+		float angle = atan2(y_pos - mouseY, mouseX - x_pos);
+		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
+	}
+
 	//Planet gravity
 	for (auto planet : planets)
 	{
@@ -99,6 +111,7 @@ void ofApp::update() {
 	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
 float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad)
@@ -112,7 +125,7 @@ float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad
 	//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
 	float distance = std::hypot(x_pos - planet_x, y_pos - planet_y);
 
-	float gravity = float(planet_rad) / pow(distance, 2);
+	float gravity = 100 * float(planet_rad) / pow(distance, 2);
 
 	return gravity;
 }
@@ -170,6 +183,7 @@ void ofApp::draw() {
 	info += "Press [q] for triangles\n";
 	info += "Press [=] to create a planet with gravity\n";
 	info += "Press [0] to have the first triangle follow the mouse\n";
+	info += "Use wasd controls to move first triangle\n";
 	info += "MouseX: " + std::to_string(mouseX) + "\n";
 	info += "MouseY: " + std::to_string(mouseY) + "\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
@@ -181,17 +195,18 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key) {
-
-	if (key == 'c') {
+void ofApp::keyPressed(int key) 
+{
+	if (key == 'c') 
+	{
 		float r = ofRandom(4, 20);		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
 		circles.back()->setPhysics(1.0, 0.53, 0.1);
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-
 	}
 
-	if (key == 'b') {
+	if (key == 'b') 
+	{
 		float w = ofRandom(4, 20);
 		float h = ofRandom(4, 20);
 		boxes.push_back(std::make_shared<ofxBox2dRect>());
@@ -199,17 +214,16 @@ void ofApp::keyPressed(int key) {
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
 	}
 
-	if (key == '1') {
+	if (key == '1') 
+	{
 		float r = ofRandom(30, 50);		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
 		circles.back()->setPhysics(0.0, 0.53, 0.1);
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-
-
 	}
 
-	if (key == 'z') {
-
+	if (key == 'z') 
+	{
 		customParticles.push_back(std::make_shared<CustomParticle>());
 		CustomParticle * p = customParticles.back().get();
 		float r = ofRandom(3, 10);		// a random radius 4px - 20px
@@ -220,34 +234,20 @@ void ofApp::keyPressed(int key) {
 		p->color.b = ofRandom(150, 255);
 	}
 
-	if (key == 'q') {
-		
+	if (key == 'q') 
+	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		//tri.edgeset(false);
 		tri->setPhysics(1.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
 
 		triangles.push_back(tri);
-
-		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
-		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
-			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
-			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
-		triangle->triangulatePoly();
-		triangle->setPhysics(1.0, 0.3, 0.3);
-		triangle->create(box2d.getWorld());*/
-
-		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
-
-		//triangles.push_back(triangle);
 	}
 
 	if (key == 'p') {
 
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		//tri.edgeset(false);
 		tri->setPhysics(1.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
 		tri->addForce(ofVec2f(0,1), 50);
@@ -266,8 +266,8 @@ void ofApp::keyPressed(int key) {
 		//triangles.push_back(triangle);
 	}
 
-	if (key == 'm') {
-
+	if (key == 'm') 
+	{
 		float r = 20;		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
 		circles.back()->setPhysics(3.0, 0.53, 0.1);
@@ -275,37 +275,33 @@ void ofApp::keyPressed(int key) {
 		circles.back()->setVelocity(5.0, 0.0);
 	}
 
-	if (key == 'w')
+	if (triangles[0])
 	{
-		triangles[0]->setVelocity(0, -5);
-	}
+		if (key == 'w')
+		{
+			triangles[0]->setVelocity(0, -5);
+		}
 
-	if (key == 'a')
-	{
-		triangles[0]->setVelocity(-5, 0);
-	}
+		if (key == 'a')
+		{
+			triangles[0]->setVelocity(-5, 0);
+		}
 
-	if (key == 's')
-	{
-		triangles[0]->setVelocity(0, 5);
-	}
+		if (key == 's')
+		{
+			triangles[0]->setVelocity(0, 5);
+		}
 
-	if (key == 'd')
-	{
-		triangles[0]->setVelocity(5, 0);
+		if (key == 'd')
+		{
+			triangles[0]->setVelocity(5, 0);
+		}
 	}
-
 	if (key == '0') //Follow mouse with constant velocity
 	{
-		int velocity = 5;
-		ofVec2f curr_pos = triangles[0]->getPosition();
-		int x_pos = curr_pos.x;
-		int y_pos = curr_pos.y;
-		
-		float angle = atan2(y_pos - mouseY, mouseX - x_pos);
-		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
+		followMouse = !followMouse;
 
-		cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
+		//cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
 	}
 
 	if (key == '=') //Create a planet with gravity and varying size
@@ -314,7 +310,6 @@ void ofApp::keyPressed(int key) {
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
 		planets.back()->setPhysics(10000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;

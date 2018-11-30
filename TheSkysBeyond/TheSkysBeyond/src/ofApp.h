@@ -56,6 +56,9 @@ public:
 	float py = 0;
 	bool bDrawLines = false;
 	bool bMouseForce = false;
+	bool followMouse = false;
+
+	int player_velocity = 0;
 
 	ofImage background;
 	ofCamera view;
@@ -69,4 +72,9 @@ public:
 	std::vector<std::shared_ptr<CustomParticle>> customParticles; // this is a custom particle the extends a cirlce
 
 	std::vector<std::shared_ptr<ofxBox2dCircle>> planets;
+
+	//TODO:
+	//Implement sliding by having velocity go back (also slide background slowly as traverse through level)
+	//Add contact listener (to know when the player is hit by another object)
+	//if mouse pressed, engage booster
 };
