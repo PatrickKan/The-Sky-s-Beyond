@@ -242,6 +242,18 @@ void ofApp::keyPressed(int key)
 		tri->create(box2d.getWorld());
 
 		triangles.push_back(tri);
+
+		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
+		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
+			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
+			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
+		triangle->triangulatePoly();
+		triangle->setPhysics(1.0, 0.3, 0.3);
+		triangle->create(box2d.getWorld());*/
+
+		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
+
+		//triangles.push_back(triangle);
 	}
 
 	if (key == 'p') {
@@ -275,28 +287,26 @@ void ofApp::keyPressed(int key)
 		circles.back()->setVelocity(5.0, 0.0);
 	}
 
-	if (triangles[0])
+	if (key == 'w')
 	{
-		if (key == 'w')
-		{
-			triangles[0]->setVelocity(0, -5);
-		}
-
-		if (key == 'a')
-		{
-			triangles[0]->setVelocity(-5, 0);
-		}
-
-		if (key == 's')
-		{
-			triangles[0]->setVelocity(0, 5);
-		}
-
-		if (key == 'd')
-		{
-			triangles[0]->setVelocity(5, 0);
-		}
+		triangles[0]->setVelocity(0, -5);
 	}
+
+	if (key == 'a')
+	{
+		triangles[0]->setVelocity(-5, 0);
+	}
+
+	if (key == 's')
+	{
+		triangles[0]->setVelocity(0, 5);
+	}
+
+	if (key == 'd')
+	{
+		triangles[0]->setVelocity(5, 0);
+	}
+
 	if (key == '0') //Follow mouse with constant velocity
 	{
 		followMouse = !followMouse;
@@ -310,6 +320,7 @@ void ofApp::keyPressed(int key)
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
 		planets.back()->setPhysics(10000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
+
 	}
 
 	if (key == 'f') bMouseForce = !bMouseForce;
