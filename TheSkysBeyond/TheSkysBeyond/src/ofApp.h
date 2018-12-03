@@ -3,13 +3,16 @@
 #include "ofxBox2d.h"
 
 // ------------------------------------------------- a simple extended box2d circle
-class CustomParticle : public ofxBox2dCircle {
+class CustomParticle : public ofxBox2dCircle
+{
 
 public:
-	CustomParticle() {
+	CustomParticle()
+	{
 	}
 
-	void draw() {
+	void draw()
+	{
 		ofPushMatrix();
 		ofTranslate(getPosition());
 		ofSetColor(color.r, color.g, color.b);
@@ -22,13 +25,15 @@ public:
 
 };
 
-class Planet : public ofxBox2dCircle {
+class Planet : public ofxBox2dCircle
+{
 
 	int radius;
 
 public:
 
-	Planet() {
+	Planet()
+	{
 
 	}
 
@@ -36,7 +41,8 @@ public:
 };
 
 // -------------------------------------------------
-class ofApp : public ofBaseApp {
+class ofApp : public ofBaseApp
+{
 
 public:
 

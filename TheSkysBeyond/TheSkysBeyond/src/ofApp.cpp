@@ -4,7 +4,8 @@ static int pts[] = { 257,219,257,258,259,274,263,325,266,345,266,352,269,369,276
 static int nPts = 61 * 2;
 
 //--------------------------------------------------------------
-void ofApp::setup() {
+void ofApp::setup()
+{
 	ofSetVerticalSync(true);
 	//ofBackgroundHex(0xfdefc2);
 	ofBackground(ofColor(255, 255, 255));
@@ -12,7 +13,7 @@ void ofApp::setup() {
 
 	background.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\images\\space_background2.png");
 
-	view.setPosition(ofPoint(mouseX, mouseY,0));
+	view.setPosition(ofPoint(mouseX, mouseY, 0));
 
 	bMouseForce = false;
 	followMouse = false;
@@ -24,7 +25,8 @@ void ofApp::setup() {
 	box2d.registerGrabbing();
 
 	// lets add a contour to start
-	for (int i = 0; i < nPts; i += 2) {
+	for (int i = 0; i < nPts; i += 2)
+	{
 		float x = pts[i];
 		float y = pts[i + 1];
 		edgeLine.addVertex(x, y);
@@ -36,31 +38,37 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
-void ofApp::update() {
+void ofApp::update()
+{
 
 	box2d.update();
 
 	view.move(mouseX, mouseY, 0);
 
 	//For planet force, gravity should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
-	
-	if (bMouseForce) {
+
+	if (bMouseForce)
+	{
 		float strength = 8.0;
 		float damping = 1.0f;
 		float minDis = 100;
-		for (auto i = 0; i < circles.size(); i++) {
+		for (auto i = 0; i < circles.size(); i++)
+		{
 			circles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			circles[i]->setDamping(damping, damping);
 		}
-		for (auto i = 0; i < customParticles.size(); i++) {
+		for (auto i = 0; i < customParticles.size(); i++)
+		{
 			customParticles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			customParticles[i]->setDamping(damping, damping);
 		}
-		for (auto i = 0; i < boxes.size(); i++) {
+		for (auto i = 0; i < boxes.size(); i++)
+		{
 			boxes[i]->addAttractionPoint(mouseX, mouseY, strength);
 			boxes[i]->setDamping(damping, damping);
 		}
-		for (auto i = 0; i < triangles.size(); i++) {
+		for (auto i = 0; i < triangles.size(); i++)
+		{
 			triangles[i]->addAttractionPoint(mouseX, mouseY, strength);
 			triangles[i]->setDamping(damping, damping);
 		}
@@ -87,19 +95,23 @@ void ofApp::update() {
 		int planet_x = planet_pos.x;
 		int planet_y = planet_pos.y;
 
-		for (auto circle: circles) {
+		for (auto circle : circles)
+		{
 			gravity = ComputeGravity(circle->getPosition(), planet_pos, planet_rad);
 			circle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto particle: customParticles) {
+		for (auto particle : customParticles)
+		{
 			gravity = ComputeGravity(particle->getPosition(), planet_pos, planet_rad);
 			particle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto box: boxes) {
+		for (auto box : boxes)
+		{
 			gravity = ComputeGravity(box->getPosition(), planet_pos, planet_rad);
 			box->addAttractionPoint(planet_x, planet_y, gravity);
 		}
-		for (auto triangle: triangles) {
+		for (auto triangle : triangles)
+		{
 			gravity = ComputeGravity(triangle->getPosition(), planet_pos, planet_rad);
 			triangle->addAttractionPoint(planet_x, planet_y, gravity);
 		}
@@ -132,33 +144,39 @@ float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad
 
 
 //--------------------------------------------------------------
-void ofApp::draw() {
+void ofApp::draw()
+{
 
 	background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 
-	for (auto i = 0; i < circles.size(); i++) {
+	for (auto i = 0; i < circles.size(); i++)
+	{
 		ofFill();
 		ofSetHexColor(0x90d4e3);
 		circles[i]->draw();
 	}
 
-	for (auto i = 0; i < boxes.size(); i++) {
+	for (auto i = 0; i < boxes.size(); i++)
+	{
 		ofFill();
 		ofSetHexColor(0xe63b8b);
 		boxes[i]->draw();
 	}
 
-	for (auto i = 0; i < customParticles.size(); i++) {
+	for (auto i = 0; i < customParticles.size(); i++)
+	{
 		customParticles[i]->draw();
 	}
 
-	for (int i = 0; i < triangles.size(); i++) {
+	for (int i = 0; i < triangles.size(); i++)
+	{
 		ofFill();
 		ofSetHexColor(0xEE82EE);
 		triangles[i]->draw();
 	}
 
-	for (auto planet: planets) {
+	for (auto planet : planets)
+	{
 		ofFill();
 		ofSetHexColor(0xcc3333);
 		planet->draw();
@@ -167,8 +185,8 @@ void ofApp::draw() {
 
 	ofNoFill();
 	ofSetHexColor(0xffe6e6);
-	//ofSetHexColor(0x444342);
-	if (drawing.size() == 0) {
+	if (drawing.size() == 0)
+	{
 		edgeLine.updateShape();
 		edgeLine.draw();
 	}
@@ -190,14 +208,13 @@ void ofApp::draw() {
 	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
 	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
 	ofSetHexColor(0xffffff);
-	//ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key) 
+void ofApp::keyPressed(int key)
 {
-	if (key == 'c') 
+	if (key == 'c')
 	{
 		float r = ofRandom(4, 20);		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
@@ -205,7 +222,7 @@ void ofApp::keyPressed(int key)
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 	}
 
-	if (key == 'b') 
+	if (key == 'b')
 	{
 		float w = ofRandom(4, 20);
 		float h = ofRandom(4, 20);
@@ -214,7 +231,7 @@ void ofApp::keyPressed(int key)
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
 	}
 
-	if (key == '1') 
+	if (key == '1')
 	{
 		float r = ofRandom(30, 50);		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
@@ -222,7 +239,7 @@ void ofApp::keyPressed(int key)
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 	}
 
-	if (key == 'z') 
+	if (key == 'z')
 	{
 		customParticles.push_back(std::make_shared<CustomParticle>());
 		CustomParticle * p = customParticles.back().get();
@@ -234,7 +251,7 @@ void ofApp::keyPressed(int key)
 		p->color.b = ofRandom(150, 255);
 	}
 
-	if (key == 'q') 
+	if (key == 'q')
 	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
@@ -242,43 +259,19 @@ void ofApp::keyPressed(int key)
 		tri->create(box2d.getWorld());
 
 		triangles.push_back(tri);
-
-		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
-		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
-			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
-			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
-		triangle->triangulatePoly();
-		triangle->setPhysics(1.0, 0.3, 0.3);
-		triangle->create(box2d.getWorld());*/
-
-		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
-
-		//triangles.push_back(triangle);
 	}
 
-	if (key == 'p') {
-
+	if (key == 'p')
+	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
 		tri->setPhysics(1.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
-		tri->addForce(ofVec2f(0,1), 50);
+		tri->addForce(ofVec2f(0, 1), 50);
 		triangles.push_back(tri);
-
-		/*auto triangle = std::make_shared<ofxBox2dPolygon>();
-		triangle->addTriangle(ofDefaultVertexType(mouseX, mouseY, 0),
-			ofDefaultVertexType(mouseX+5, mouseY+5, 0),
-			ofDefaultVertexType(mouseX-5, mouseY-5, 0));
-		triangle->triangulatePoly();
-		triangle->setPhysics(1.0, 0.3, 0.3);
-		triangle->create(box2d.getWorld());*/
-
-		std::cout << "Mousex : " << mouseX << "\n" << "MouseY: " << mouseY;
-
-		//triangles.push_back(triangle);
 	}
 
-	if (key == 'm') 
+	if (key == 'm')
 	{
 		float r = 20;		// a random radius 4px - 20px
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
@@ -316,7 +309,7 @@ void ofApp::keyPressed(int key)
 
 	if (key == '=') //Create a planet with gravity and varying size
 	{
-		float r = ofRandom(40,70);		// a random radius 4px - 20px
+		float r = ofRandom(40, 70);		// a random radius 4px - 20px
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
 		planets.back()->setPhysics(10000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
@@ -329,14 +322,17 @@ void ofApp::keyPressed(int key)
 
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button) {
+void ofApp::mouseDragged(int x, int y, int button)
+{
 	drawing.addVertex(x, y);
 }
 
 //--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button) {
+void ofApp::mousePressed(int x, int y, int button)
+{
 
-	if (edgeLine.isBody()) {
+	if (edgeLine.isBody())
+	{
 		drawing.clear();
 		edgeLine.destroy();
 	}
@@ -345,7 +341,8 @@ void ofApp::mousePressed(int x, int y, int button) {
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button) {
+void ofApp::mouseReleased(int x, int y, int button)
+{
 
 	drawing.setClosed(false);
 	drawing.simplify();
