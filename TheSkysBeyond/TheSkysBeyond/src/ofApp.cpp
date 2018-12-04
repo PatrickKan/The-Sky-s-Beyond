@@ -21,6 +21,10 @@ void ofApp::setup()
 	box2d.setFPS(100.0);
 	box2d.registerGrabbing();
 
+	// register the listener so that we get the events
+	//ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
+	//ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
+
 }
 
 //--------------------------------------------------------------
@@ -66,15 +70,19 @@ void ofApp::update()
 		int yPos = currPos.y;
 
 		float angle = atan2(yPos - mouseY, mouseX - xPos);
-		triangles[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
+		triangles[0]->setVelocity(0, -playerVelocity * sin(angle));
+
+		//Example moving x velocity
+		//triangles[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
 		
 		scrollVelocity = playerVelocity * cos(angle);
 		playerXPos += scrollVelocity * 0.1;
 	}
 
-	if (mouseDown)
+	if (mouseDown && fuel > 0)
 	{
-		playerVelocity += 0.05;
+		playerVelocity += 0.1;
+		fuel--;
 	}
 
 	//Planet gravity
@@ -89,40 +97,40 @@ void ofApp::update()
 		int planetY = planetPos.y;
 
 		ofVec2f planetVel = planet->getVelocity();
-		planet->setVelocity(scrollVelocity, planetVel.y);
+		planet->setVelocity(-scrollVelocity, planetVel.y);
 
 		for (auto circle : circles)
 		{
 			gravity = ComputeGravity(circle->getPosition(), planetPos, planetRad);
 			circle->addAttractionPoint(planetX, planetY, gravity);
 			ofVec2f velocity = circle->getVelocity();
-			circle->setVelocity(velocity.x + scrollVelocity, velocity.y);
+			circle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto particle : customParticles)
 		{
 			gravity = ComputeGravity(particle->getPosition(), planetPos, planetRad);
 			particle->addAttractionPoint(planetX, planetY, gravity);
 			ofVec2f velocity = particle->getVelocity();
-			particle->setVelocity(velocity.x + scrollVelocity, velocity.y);
+			particle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto box : boxes)
 		{
 			gravity = ComputeGravity(box->getPosition(), planetPos, planetRad);
 			box->addAttractionPoint(planetX, planetY, gravity);
 			ofVec2f velocity = box->getVelocity();
-			box->setVelocity(velocity.x + scrollVelocity, velocity.y);
+			box->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto triangle : triangles)
 		{
-			gravity = ComputeGravity(triangle->getPosition(), planetPos, planetRad);
-			triangle->addAttractionPoint(planetX, planetY, gravity);
-			ofVec2f velocity = triangle->getVelocity();
-			triangle->setVelocity(velocity.x + scrollVelocity, velocity.y);
-		}
-
-		
+			if (triangle != triangles[0])
+			{
+				gravity = ComputeGravity(triangle->getPosition(), planetPos, planetRad);
+				triangle->addAttractionPoint(planetX, planetY, gravity);
+				ofVec2f velocity = triangle->getVelocity();
+				triangle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
+			}
+		}	
 	}
-
 
 	// remove shapes offscreen
 	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
@@ -152,11 +160,25 @@ float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+	backgroundState = (int(playerXPos) / int((2 * ofGetWindowHeight()))) % 2;
 
-	background.draw(-playerXPos, 0, 2 * ofGetWindowWidth() - playerXPos, ofGetWindowHeight());
-
-
-
+	background.draw((int(-playerXPos) % int(4*ofGetWindowWidth())), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+	background.draw(int(-playerXPos) % int(4*ofGetWindowWidth()) + 2 * ofGetWindowWidth()-1, 0, 2 * ofGetWindowWidth(), ofGetWindowWidth());
+	background.draw((int(-playerXPos) % int(4 * ofGetWindowWidth())) + 4 * ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+	/*if (backgroundState == 0)
+	{
+		background.draw(int(-playerXPos) % int(2 * ofGetWindowWidth()), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+	}
+	else if (backgroundState == 1)
+	{
+		background.draw(int(-playerXPos) % int(2 * ofGetWindowWidth()), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+		background.draw((int(-playerXPos) % int(2 * ofGetWindowWidth())) + ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+	}
+	else
+	{
+		std::cout << "Error with background" << std::endl;
+	}*/
+	
 	for (auto i = 0; i < circles.size(); i++)
 	{
 		ofFill();
@@ -208,6 +230,7 @@ void ofApp::draw()
 	info += "Press [=] to create a planet with gravity\n";
 	info += "Press [0] to have the first triangle follow the mouse\n";
 	info += "Use wasd controls to move first triangle\n";
+	info += "Hold down mouse to boost. Current fuel: " + to_string(fuel) + "\n";
 	info += "MouseX: " + std::to_string(mouseX) + "\n";
 	info += "MouseY: " + std::to_string(mouseY) + "\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
@@ -249,7 +272,7 @@ void ofApp::keyPressed(int key)
 	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		tri->setPhysics(1.0, 0.7, 1.0);
+		tri->setPhysics(100.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
 
 		triangles.push_back(tri);
@@ -351,3 +374,17 @@ void ofApp::mouseReleased(int x, int y, int button)
 
 	drawing.clear(); */
 }
+
+//--------------------------------------------------------------
+/*void ofApp::contactStart(ofxBox2dContactArgs &e)
+{
+	if (e.a != NULL && e.b != NULL)
+	{
+
+		// if we collide with the ground we do not
+		// want to play a sound. this is how you do that
+		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
+		{
+		}
+	}
+}*/

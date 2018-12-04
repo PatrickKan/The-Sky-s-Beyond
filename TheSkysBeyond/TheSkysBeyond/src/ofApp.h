@@ -57,6 +57,10 @@ public:
 
 	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
 
+	// this is the function for contacts
+	//void contactStart(ofxBox2dContactArgs &e);
+	//void contactEnd(ofxBox2dContactArgs &e);
+
 
 	float px = 0;
 	float py = 0;
@@ -69,6 +73,9 @@ public:
 	float scrollVelocity = 0;
 	float playerXPos = 0;
 
+	int backgroundState = 0;
+	
+	int fuel = 1000;
 
 	ofImage background;
 	ofCamera view;
