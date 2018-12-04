@@ -1,4 +1,5 @@
 #include "ofApp.h"
+#include "..//Player.h"
 
 
 //--------------------------------------------------------------
@@ -106,22 +107,16 @@ void ofApp::update()
 		{
 			gravity = ComputeGravity(circle->getPosition(), planetPos, planetRad);
 			circle->addAttractionPoint(planetX, planetY, gravity);
-			ofVec2f velocity = circle->getVelocity();
-			circle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto particle : customParticles)
 		{
 			gravity = ComputeGravity(particle->getPosition(), planetPos, planetRad);
 			particle->addAttractionPoint(planetX, planetY, gravity);
-			ofVec2f velocity = particle->getVelocity();
-			particle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto box : boxes)
 		{
 			gravity = ComputeGravity(box->getPosition(), planetPos, planetRad);
 			box->addAttractionPoint(planetX, planetY, gravity);
-			ofVec2f velocity = box->getVelocity();
-			box->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 		}
 		for (auto triangle : triangles)
 		{
@@ -129,8 +124,6 @@ void ofApp::update()
 			{
 				gravity = ComputeGravity(triangle->getPosition(), planetPos, planetRad);
 				triangle->addAttractionPoint(planetX, planetY, gravity);
-				ofVec2f velocity = triangle->getVelocity();
-				triangle->setVelocity(velocity.x + -scrollVelocity, velocity.y);
 			}
 		}	
 	}
@@ -252,6 +245,7 @@ void ofApp::keyPressed(int key)
 		circles.push_back(std::make_shared<ofxBox2dCircle>());
 		circles.back()->setPhysics(1.0, 0.53, 0.1);
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
+		circles.back()->setVelocity(-scrollVelocity, 0);
 	}
 
 	if (key == 'b')
@@ -261,6 +255,7 @@ void ofApp::keyPressed(int key)
 		boxes.push_back(std::make_shared<ofxBox2dRect>());
 		boxes.back()->setPhysics(3.0, 0.53, 0.1);
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
+		boxes.back()->setVelocity(-scrollVelocity, 0);
 	}
 
 	if (key == '1')
@@ -279,6 +274,7 @@ void ofApp::keyPressed(int key)
 		tri->create(box2d.getWorld());
 
 		triangles.push_back(tri);
+		tri->setVelocity(-scrollVelocity, 0);
 	}
 
 	if (key == 'p')
@@ -369,7 +365,7 @@ void ofApp::contactStart(ofxBox2dContactArgs &e)
 
 		// if we collide with the ground we do not
 		// want to play a sound. this is how you do that
-		if (e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle)
+		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
 		{
 			std::cout << "Contact made\n";
 		}

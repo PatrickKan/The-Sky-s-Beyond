@@ -3,8 +3,9 @@
 ## Engine 
 - [x] Created planets with gravity
 - [x] Player's spaceship tracked by mouse
-- [ ] Player's ship accelerates with mouse click and limited fuel
-- [ ] Allow player to move through map horizontally with objects moving backwards
+- [X] Player's ship accelerates with mouse click and limited fuel
+- [X] Allow player to move through map horizontally with objects moving backwards
+- [ ] Add random objects in space with timer
 
 ## Collisions
 - [ ] Implement contact listener to know when objects collide with player
@@ -12,5 +13,7 @@
  
 ## Drawing
 - [x] Create triangles as custom polygons
-- [ ] Move background as player moves forward
-
+- [X] Move background as player moves forward
+- [ ] Add loading screen 
+- [ ] Implement graphic for fuel
+- [ ] Add images to display spaceship and planets in game

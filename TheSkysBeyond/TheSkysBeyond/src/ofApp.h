@@ -56,6 +56,7 @@ public:
 	void mouseReleased(int x, int y, int button);
 
 	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
+	void SetScrollVelocities();
 
 	// this is the function for contacts
 	void contactStart(ofxBox2dContactArgs &e);
