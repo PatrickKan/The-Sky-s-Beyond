@@ -27,8 +27,8 @@ public:
 
 class Planet : public ofxBox2dCircle
 {
-
 	int radius;
+	int gravity;
 
 public:
 
@@ -58,8 +58,8 @@ public:
 	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
 
 	// this is the function for contacts
-	//void contactStart(ofxBox2dContactArgs &e);
-	//void contactEnd(ofxBox2dContactArgs &e);
+	void contactStart(ofxBox2dContactArgs &e);
+	void contactEnd(ofxBox2dContactArgs &e);
 
 
 	float px = 0;

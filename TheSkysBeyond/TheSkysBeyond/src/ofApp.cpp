@@ -1,5 +1,6 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -21,9 +22,11 @@ void ofApp::setup()
 	box2d.setFPS(100.0);
 	box2d.registerGrabbing();
 
+
+	box2d.enableEvents();
 	// register the listener so that we get the events
-	//ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
-	//ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
+	ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
+	ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
 
 }
 
@@ -348,43 +351,36 @@ void ofApp::mousePressed(int x, int y, int button)
 	mouseDown = true;
 
 	std::cout << "Mouse is being pressed\n";
-
-	/*if (edgeLine.isBody())
-	{
-		drawing.clear();
-		edgeLine.destroy();
-	}
-
-	drawing.addVertex(x, y);
-	*/
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button)
 {
 	mouseDown = false;
-
-	/*drawing.setClosed(false);
-	drawing.simplify();
-
-	edgeLine.addVertexes(drawing);
-	//polyLine.simplifyToMaxVerts(); // this is based on the max box2d verts
-	edgeLine.setPhysics(0.0, 0.5, 0.5);
-	edgeLine.create(box2d.getWorld());
-
-	drawing.clear(); */
 }
 
 //--------------------------------------------------------------
-/*void ofApp::contactStart(ofxBox2dContactArgs &e)
+void ofApp::contactStart(ofxBox2dContactArgs &e)
 {
+	std::cout << "Entering contact start";
+
 	if (e.a != NULL && e.b != NULL)
 	{
 
 		// if we collide with the ground we do not
 		// want to play a sound. this is how you do that
-		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
+		if (e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle)
 		{
+			std::cout << "Contact made\n";
 		}
 	}
-}*/
+}
+
+//--------------------------------------------------------------
+void ofApp::contactEnd(ofxBox2dContactArgs &e)
+{
+	if (e.a != NULL && e.b != NULL)
+	{
+		std::cout << "Contact ended\n";
+	}
+}
