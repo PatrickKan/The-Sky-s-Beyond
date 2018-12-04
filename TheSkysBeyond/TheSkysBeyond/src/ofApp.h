@@ -63,8 +63,12 @@ public:
 	bool bDrawLines = false;
 	bool bMouseForce = false;
 	bool followMouse = false;
+	bool mouseDown = false;
 
-	int player_velocity = 0;
+	float playerVelocity = 5;
+	float scrollVelocity = 0;
+	float playerXPos = 0;
+
 
 	ofImage background;
 	ofCamera view;

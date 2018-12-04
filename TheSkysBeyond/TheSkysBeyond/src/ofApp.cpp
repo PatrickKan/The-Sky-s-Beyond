@@ -1,8 +1,5 @@
 #include "ofApp.h"
 
-static int pts[] = { 257,219,257,258,259,274,263,325,266,345,266,352,269,369,276,387,286,415,291,425,302,451,308,462,316,472,321,480,328,488,333,495,339,501,345,505,350,507,365,515,370,519,377,522,382,525,388,527,405,534,426,538,439,539,452,539,468,540,485,540,496,541,607,541,618,539,625,537,641,530,666,513,682,500,710,476,723,463,727,457,729,453,732,450,734,447,738,440,746,423,756,404,772,363,779,343,781,339,784,327,789,301,792,278,794,267,794,257,795,250,795,232,796,222,796,197,797,195,797,188,796,188 };
-static int nPts = 61 * 2;
-
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -20,33 +17,20 @@ void ofApp::setup()
 
 	box2d.init();
 	box2d.setGravity(0, 0);
-	box2d.createGround();
-	box2d.setFPS(60.0);
+	//box2d.createGround();
+	box2d.setFPS(100.0);
 	box2d.registerGrabbing();
 
-	// lets add a contour to start
-	for (int i = 0; i < nPts; i += 2)
-	{
-		float x = pts[i];
-		float y = pts[i + 1];
-		edgeLine.addVertex(x, y);
-	}
-
-	// make the shape
-	edgeLine.setPhysics(0.0, 0.5, 0.5);
-	edgeLine.create(box2d.getWorld());
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
-
 	box2d.update();
 
 	view.move(mouseX, mouseY, 0);
 
-	//For planet force, gravity should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
-
+	
 	if (bMouseForce)
 	{
 		float strength = 8.0;
@@ -77,44 +61,66 @@ void ofApp::update()
 	if (followMouse && triangles[0])
 	{
 		int velocity = 5;
-		ofVec2f curr_pos = triangles[0]->getPosition();
-		int x_pos = curr_pos.x;
-		int y_pos = curr_pos.y;
+		ofVec2f currPos = triangles[0]->getPosition();
+		int xPos = currPos.x;
+		int yPos = currPos.y;
 
-		float angle = atan2(y_pos - mouseY, mouseX - x_pos);
-		triangles[0]->setVelocity(velocity*cos(angle), -velocity * sin(angle));
+		float angle = atan2(yPos - mouseY, mouseX - xPos);
+		triangles[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
+		
+		scrollVelocity = playerVelocity * cos(angle);
+		playerXPos += scrollVelocity * 0.1;
+	}
+
+	if (mouseDown)
+	{
+		playerVelocity += 0.05;
 	}
 
 	//Planet gravity
+	//For planet force, gravity should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
 	for (auto planet : planets)
 	{
 		float gravity = 0;
 
-		ofVec2f planet_pos = planet->getPosition();
-		int planet_rad = planet->getRadius();
-		int planet_x = planet_pos.x;
-		int planet_y = planet_pos.y;
+		ofVec2f planetPos = planet->getPosition();
+		int planetRad = planet->getRadius();
+		int planetX = planetPos.x;
+		int planetY = planetPos.y;
+
+		ofVec2f planetVel = planet->getVelocity();
+		planet->setVelocity(scrollVelocity, planetVel.y);
 
 		for (auto circle : circles)
 		{
-			gravity = ComputeGravity(circle->getPosition(), planet_pos, planet_rad);
-			circle->addAttractionPoint(planet_x, planet_y, gravity);
+			gravity = ComputeGravity(circle->getPosition(), planetPos, planetRad);
+			circle->addAttractionPoint(planetX, planetY, gravity);
+			ofVec2f velocity = circle->getVelocity();
+			circle->setVelocity(velocity.x + scrollVelocity, velocity.y);
 		}
 		for (auto particle : customParticles)
 		{
-			gravity = ComputeGravity(particle->getPosition(), planet_pos, planet_rad);
-			particle->addAttractionPoint(planet_x, planet_y, gravity);
+			gravity = ComputeGravity(particle->getPosition(), planetPos, planetRad);
+			particle->addAttractionPoint(planetX, planetY, gravity);
+			ofVec2f velocity = particle->getVelocity();
+			particle->setVelocity(velocity.x + scrollVelocity, velocity.y);
 		}
 		for (auto box : boxes)
 		{
-			gravity = ComputeGravity(box->getPosition(), planet_pos, planet_rad);
-			box->addAttractionPoint(planet_x, planet_y, gravity);
+			gravity = ComputeGravity(box->getPosition(), planetPos, planetRad);
+			box->addAttractionPoint(planetX, planetY, gravity);
+			ofVec2f velocity = box->getVelocity();
+			box->setVelocity(velocity.x + scrollVelocity, velocity.y);
 		}
 		for (auto triangle : triangles)
 		{
-			gravity = ComputeGravity(triangle->getPosition(), planet_pos, planet_rad);
-			triangle->addAttractionPoint(planet_x, planet_y, gravity);
+			gravity = ComputeGravity(triangle->getPosition(), planetPos, planetRad);
+			triangle->addAttractionPoint(planetX, planetY, gravity);
+			ofVec2f velocity = triangle->getVelocity();
+			triangle->setVelocity(velocity.x + scrollVelocity, velocity.y);
 		}
+
+		
 	}
 
 
@@ -126,18 +132,18 @@ void ofApp::update()
 	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
-float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad)
+float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 {
-	int x_pos = curr_pos.x;
-	int y_pos = curr_pos.y;
+	int xPos = currPos.x;
+	int yPos = currPos.y;
 
-	int planet_x = planet_pos.x;
-	int planet_y = planet_pos.y;
+	int planetX = planetPos.x;
+	int planetY = planetPos.y;
 
 	//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
-	float distance = std::hypot(x_pos - planet_x, y_pos - planet_y);
+	float distance = std::hypot(xPos - planetX, yPos - planetY);
 
-	float gravity = 100 * float(planet_rad) / pow(distance, 2);
+	float gravity = 100 * float(planetRad) / pow(distance, 2);
 
 	return gravity;
 }
@@ -147,7 +153,9 @@ float ofApp::ComputeGravity(ofVec2f curr_pos, ofVec2f planet_pos, int planet_rad
 void ofApp::draw()
 {
 
-	background.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+	background.draw(-playerXPos, 0, 2 * ofGetWindowWidth() - playerXPos, ofGetWindowHeight());
+
+
 
 	for (auto i = 0; i < circles.size(); i++)
 	{
@@ -193,11 +201,9 @@ void ofApp::draw()
 	else drawing.draw();
 
 	string info = "";
-	info += "Press [s] to draw a line strip [" + ofToString(bDrawLines) + "]\n";
 	info += "Press [f] to toggle Mouse Force [" + ofToString(bMouseForce) + "]\n";
 	info += "Press [c] for circles\n";
 	info += "Press [b] for blocks\n";
-	info += "Press [z] for custom particle\n";
 	info += "Press [q] for triangles\n";
 	info += "Press [=] to create a planet with gravity\n";
 	info += "Press [0] to have the first triangle follow the mouse\n";
@@ -239,18 +245,6 @@ void ofApp::keyPressed(int key)
 		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 	}
 
-	if (key == 'z')
-	{
-		customParticles.push_back(std::make_shared<CustomParticle>());
-		CustomParticle * p = customParticles.back().get();
-		float r = ofRandom(3, 10);		// a random radius 4px - 20px
-		p->setPhysics(0.4, 0.53, 0.31);
-		p->setup(box2d.getWorld(), mouseX, mouseY, r);
-		p->color.r = ofRandom(20, 100);
-		p->color.g = 0;
-		p->color.b = ofRandom(150, 255);
-	}
-
 	if (key == 'q')
 	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
@@ -265,7 +259,7 @@ void ofApp::keyPressed(int key)
 	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
 		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		tri->setPhysics(1.0, 0.7, 1.0);
+		tri->setPhysics(1000.0, 0.7, 1.0);
 		tri->create(box2d.getWorld());
 		tri->addForce(ofVec2f(0, 1), 50);
 		triangles.push_back(tri);
@@ -300,11 +294,9 @@ void ofApp::keyPressed(int key)
 		triangles[0]->setVelocity(5, 0);
 	}
 
-	if (key == '0') //Follow mouse with constant velocity
+	if (key == '0') //Follow mouse with constant velocity (currently set at 5)
 	{
 		followMouse = !followMouse;
-
-		//cout << "\nAngle: " << to_string(angle) << "\n x pos: " << x_pos << "\ny_pos:" << y_pos << "\n";
 	}
 
 	if (key == '=') //Create a planet with gravity and varying size
@@ -324,27 +316,32 @@ void ofApp::keyPressed(int key)
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button)
 {
-	drawing.addVertex(x, y);
+	//drawing.addVertex(x, y);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button)
 {
+	mouseDown = true;
 
-	if (edgeLine.isBody())
+	std::cout << "Mouse is being pressed\n";
+
+	/*if (edgeLine.isBody())
 	{
 		drawing.clear();
 		edgeLine.destroy();
 	}
 
 	drawing.addVertex(x, y);
+	*/
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button)
 {
+	mouseDown = false;
 
-	drawing.setClosed(false);
+	/*drawing.setClosed(false);
 	drawing.simplify();
 
 	edgeLine.addVertexes(drawing);
@@ -352,5 +349,5 @@ void ofApp::mouseReleased(int x, int y, int button)
 	edgeLine.setPhysics(0.0, 0.5, 0.5);
 	edgeLine.create(box2d.getWorld());
 
-	drawing.clear();
+	drawing.clear(); */
 }
