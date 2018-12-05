@@ -11,6 +11,10 @@ void ofApp::setup()
 	ofSetLogLevel(OF_LOG_NOTICE);
 
 	background.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\images\\space_background2.png");
+	
+	soundPlayer.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\TheAbyss.mp3");
+	soundPlayer.play();
+	soundPlayer.setMultiPlay(true);
 
 	view.setPosition(ofPoint(mouseX, mouseY, 0));
 

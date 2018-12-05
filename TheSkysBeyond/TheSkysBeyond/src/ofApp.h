@@ -63,6 +63,8 @@ public:
 	void contactEnd(ofxBox2dContactArgs &e);
 
 
+	ofSoundPlayer soundPlayer;
+
 	float px = 0;
 	float py = 0;
 	bool bDrawLines = false;
