@@ -65,6 +65,9 @@ public:
 	void contactStart(ofxBox2dContactArgs &e);
 	void contactEnd(ofxBox2dContactArgs &e);
 
+	void createPlayer();
+	void shootCircle();
+
 
 	ofSoundPlayer soundPlayer;
 

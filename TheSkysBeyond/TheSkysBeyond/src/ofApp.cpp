@@ -33,6 +33,15 @@ void ofApp::setup()
 	ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
 	ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
 
+	createPlayer();
+
+}
+
+void ofApp::createPlayer()
+{
+	players.push_back(shared_ptr<Player>(new Player(ofGetWindowWidth()/20, ofGetWindowHeight()/2)));
+	Player* player = players.back().get();
+	player->create(box2d.getWorld());
 }
 
 //--------------------------------------------------------------
@@ -188,6 +197,7 @@ float ofApp::ComputeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> pla
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+	//Three backgrounds drawn of the same image to simulate an infinite scrolling background
 	background.draw((int(-playerXPos) % int(4*ofGetWindowWidth())), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
 	background.draw(int(-playerXPos) % int(4*ofGetWindowWidth()) + 2 * ofGetWindowWidth()-1, 0, 2 * ofGetWindowWidth(), ofGetWindowWidth());
 	background.draw((int(-playerXPos) % int(4 * ofGetWindowWidth())) + 4 * ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
@@ -304,7 +314,6 @@ void ofApp::keyPressed(int key)
 		players.push_back(shared_ptr<Player>(new Player(mouseX,mouseY)));
 		Player* player = players.back().get();
 		player->create(box2d.getWorld());
-		player->setVelocity(-scrollVelocity, 0);
 	}
 
 	if (key == 'p')
@@ -360,10 +369,29 @@ void ofApp::keyPressed(int key)
 
 	}
 
+	if (key == 'z')
+	{
+		shootCircle();
+	}
+
 	if (key == 'f') bMouseForce = !bMouseForce;
 	if (key == 't') ofToggleFullscreen();
 }
 
+void ofApp::shootCircle()
+{
+	auto player = players[0];
+
+	ofVec2f playerPos = player->getPosition();
+	int playerX = playerPos.x;
+	int playerY = playerPos.y;
+
+	float r = 10;		// a random radius 4px - 20px
+	circles.push_back(std::make_shared<ofxBox2dCircle>());
+	circles.back()->setPhysics(10.0, 0.53, 0.1);
+	circles.back()->setup(box2d.getWorld(), playerX + r + 22 , playerY , r);
+	circles.back()->setVelocity(50.0, 0.0);
+}
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button)
@@ -392,12 +420,9 @@ void ofApp::contactStart(ofxBox2dContactArgs &e)
 
 	if (e.a != NULL && e.b != NULL)
 	{
-
-		// if we collide with the ground we do not
-		// want to play a sound. this is how you do that
 		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
 		{
-			std::cout << "Contact made\n";
+			std::cout << "Contact made with player and circle\n";
 		}
 	}
 }
@@ -407,6 +432,9 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e)
 {
 	if (e.a != NULL && e.b != NULL)
 	{
-		std::cout << "Contact ended\n";
+		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
+		{
+			std::cout << "Contact made with player and circle\n";
+		}
 	}
 }

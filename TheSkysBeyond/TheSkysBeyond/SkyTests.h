@@ -47,3 +47,18 @@ TEST_CASE("Gravity Tests")
 	}
 
 }
+
+TEST_CASE("Player Creation")
+{
+	ofApp test;
+
+	
+}
+
+TEST_CASE("Player Collisions")
+{
+	SECTION("Taking damage from collision")
+	{
+
+	}
+}
