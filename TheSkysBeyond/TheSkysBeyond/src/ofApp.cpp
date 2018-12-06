@@ -100,7 +100,6 @@ void ofApp::update()
 		float gravity = 0;
 
 		ofVec2f planetPos = planet->getPosition();
-		int planetRad = planet->getRadius();
 		int planetX = planetPos.x;
 		int planetY = planetPos.y;
 
@@ -109,24 +108,24 @@ void ofApp::update()
 
 		for (auto circle : circles)
 		{
-			gravity = ComputeGravity(circle->getPosition(), planetPos, planetRad);
+			gravity = ComputeGravity(circle->getPosition(), planet);
 			circle->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto particle : customParticles)
 		{
-			gravity = ComputeGravity(particle->getPosition(), planetPos, planetRad);
+			gravity = ComputeGravity(particle->getPosition(), planet);
 			particle->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto box : boxes)
 		{
-			gravity = ComputeGravity(box->getPosition(), planetPos, planetRad);
+			gravity = ComputeGravity(box->getPosition(), planet);
 			box->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto triangle : triangles)
 		{
 			if (triangle != triangles[0])
 			{
-				gravity = ComputeGravity(triangle->getPosition(), planetPos, planetRad);
+				gravity = ComputeGravity(triangle->getPosition(), planet);
 				triangle->addAttractionPoint(planetX, planetY, gravity);
 			}
 		}	
@@ -151,8 +150,39 @@ float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 	//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
 	float distance = std::hypot(xPos - planetX, yPos - planetY);
 
-	float gravity = 100 * float(planetRad) / pow(distance, 2);
+	float gravity = 0;
 
+	//Double check to not divide by 0
+	if (distance != 0)
+	{
+		gravity = 100 * float(planetRad) / pow(distance, 2);
+	}
+	return gravity;
+}
+
+float ofApp::ComputeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet)
+{
+	int planetRad = planet->getRadius();
+
+	int xPos = currPos.x;
+	int yPos = currPos.y;
+
+	ofVec2f planetPos = planet->getPosition();
+	int planetX = planetPos.x;
+	int planetY = planetPos.y;
+
+	//Hypot taken from https://en.cppreference.com/w/cpp/numeric/math/hypot
+	float distance = std::hypot(xPos - planetX, yPos - planetY);
+
+	float gravity = 0;
+
+	//Double check to not divide by 0
+	if (distance != 0)
+	{
+		gravity = 100 * float(planetRad) / pow(distance, 2);
+	}
+
+	return gravity;
 	return gravity;
 }
 
@@ -160,24 +190,9 @@ float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-	backgroundState = (int(playerXPos) / int((2 * ofGetWindowHeight()))) % 2;
-
 	background.draw((int(-playerXPos) % int(4*ofGetWindowWidth())), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
 	background.draw(int(-playerXPos) % int(4*ofGetWindowWidth()) + 2 * ofGetWindowWidth()-1, 0, 2 * ofGetWindowWidth(), ofGetWindowWidth());
 	background.draw((int(-playerXPos) % int(4 * ofGetWindowWidth())) + 4 * ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
-	/*if (backgroundState == 0)
-	{
-		background.draw(int(-playerXPos) % int(2 * ofGetWindowWidth()), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
-	}
-	else if (backgroundState == 1)
-	{
-		background.draw(int(-playerXPos) % int(2 * ofGetWindowWidth()), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
-		background.draw((int(-playerXPos) % int(2 * ofGetWindowWidth())) + ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
-	}
-	else
-	{
-		std::cout << "Error with background" << std::endl;
-	}*/
 	
 	for (auto i = 0; i < circles.size(); i++)
 	{
@@ -210,6 +225,13 @@ void ofApp::draw()
 		ofFill();
 		ofSetHexColor(0xcc3333);
 		planet->draw();
+	}
+
+	for (auto player : players)
+	{
+		ofFill();
+		ofSetHexColor(0xEE82EE);
+		player->draw();
 	}
 
 
@@ -279,6 +301,17 @@ void ofApp::keyPressed(int key)
 
 		triangles.push_back(tri);
 		tri->setVelocity(-scrollVelocity, 0);
+	}
+
+	if (key == '-')
+	{
+		players.push_back(shared_ptr<Player>(new Player(mouseX,mouseY)));
+		Player* player = players.back().get();
+		//player->setupPlayer(mouseX, mouseY);
+		player->setPhysics(100.0, 0.7, 1.0);
+		player->create(box2d.getWorld());
+
+		player->setVelocity(-scrollVelocity, 0);
 	}
 
 	if (key == 'p')

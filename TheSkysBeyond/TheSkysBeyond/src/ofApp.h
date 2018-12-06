@@ -1,6 +1,7 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxBox2d.h"
+#include "..//Player.h"
 
 // ------------------------------------------------- a simple extended box2d circle
 class CustomParticle : public ofxBox2dCircle
@@ -13,6 +14,7 @@ public:
 
 	void draw()
 	{
+		//Calls these methods in the draw method
 		ofPushMatrix();
 		ofTranslate(getPosition());
 		ofSetColor(color.r, color.g, color.b);
@@ -56,6 +58,7 @@ public:
 	void mouseReleased(int x, int y, int button);
 
 	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
+	float ComputeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet);
 	void SetScrollVelocities();
 
 	// this is the function for contacts
@@ -92,6 +95,7 @@ public:
 	std::vector<std::shared_ptr<CustomParticle>> customParticles; // this is a custom particle the extends a cirlce
 
 	std::vector<std::shared_ptr<ofxBox2dCircle>> planets;
+	std::vector<std::shared_ptr<Player>> players;
 
 	//TODO:
 	//Implement sliding by having velocity go back (also slide background slowly as traverse through level)
