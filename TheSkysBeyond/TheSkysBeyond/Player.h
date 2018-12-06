@@ -10,14 +10,18 @@ class Player : public ofxBox2dPolygon
 	public:
 		Player(int mouseX, int mouseY)
 		{
-			addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
+			addTriangle(ofPoint(mouseX-10, mouseY + 10), ofPoint(mouseX-10, mouseY - 10), ofPoint(mouseX + 20, mouseY));
+			setPhysics(100000000.0, 0.0, 0.0);
 		}
 
-		void setupPlayer(int mouseX, int mouseY)
+		void draw()
 		{
-			//addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY);
+			ofFill();
+			ofSetHexColor(0xEE82EE);
+			ofxBox2dPolygon::draw(); //Parent method to draw
 		}
 
-		int takeDamage();
-
+		int takeDamage(int damage);
+		int currentHealth();
+		
 };
