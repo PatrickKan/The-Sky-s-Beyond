@@ -70,20 +70,21 @@ void ofApp::update()
 		}
 	}
 
-	if (followMouse && triangles[0])
+	if (followMouse && (players[0] != nullptr))
 	{
 		int velocity = 5;
-		ofVec2f currPos = triangles[0]->getPosition();
+
+		ofVec2f currPos = players[0]->getPosition();
 		int xPos = currPos.x;
 		int yPos = currPos.y;
 
 		float angle = atan2(yPos - mouseY, mouseX - xPos);
-		triangles[0]->setVelocity(0, -playerVelocity * sin(angle));
+		players[0]->setVelocity(0, -playerVelocity * sin(angle));
 
 		//Example moving x velocity
-		//triangles[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
+		//players[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
 		
-		scrollVelocity = playerVelocity * cos(angle);
+		scrollVelocity = playerVelocity;
 		playerXPos += scrollVelocity * 0.1;
 	}
 
@@ -122,12 +123,9 @@ void ofApp::update()
 			box->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto triangle : triangles)
-		{
-			if (triangle != triangles[0])
-			{
-				gravity = ComputeGravity(triangle->getPosition(), planet);
-				triangle->addAttractionPoint(planetX, planetY, gravity);
-			}
+		{			
+			gravity = ComputeGravity(triangle->getPosition(), planet);
+			triangle->addAttractionPoint(planetX, planetY, gravity);
 		}	
 	}
 
@@ -229,8 +227,6 @@ void ofApp::draw()
 
 	for (auto player : players)
 	{
-		ofFill();
-		ofSetHexColor(0xEE82EE);
 		player->draw();
 	}
 
@@ -307,10 +303,7 @@ void ofApp::keyPressed(int key)
 	{
 		players.push_back(shared_ptr<Player>(new Player(mouseX,mouseY)));
 		Player* player = players.back().get();
-		//player->setupPlayer(mouseX, mouseY);
-		player->setPhysics(100.0, 0.7, 1.0);
 		player->create(box2d.getWorld());
-
 		player->setVelocity(-scrollVelocity, 0);
 	}
 
@@ -353,7 +346,7 @@ void ofApp::keyPressed(int key)
 		triangles[0]->setVelocity(5, 0);
 	}
 
-	if (key == '0') //Follow mouse with constant velocity (currently set at 5)
+	if (key == ' ') //Follow mouse with constant velocity (currently set at 5)
 	{
 		followMouse = !followMouse;
 	}
