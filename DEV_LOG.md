@@ -12,9 +12,11 @@
 - [X] Implement contact listener to know when objects collide with player
 - [ ] Add health and optimize object densities for collisions
  
-## Drawing
+## Drawing and Music
 - [x] Create triangles as custom polygons
 - [X] Move background as player moves forward
+- [X] Added background music
+- [ ] Add sound effect when player is hit 
 - [ ] Add loading screen 
 - [ ] Implement graphic for fuel
 - [ ] Add images to display spaceship and planets in game

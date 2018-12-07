@@ -48,11 +48,22 @@ TEST_CASE("Gravity Tests")
 
 }
 
-TEST_CASE("Player Creation")
+TEST_CASE("Creating Objects")
 {
 	ofApp test;
-
 	
+	//Needs world to be created in order to test
+	SECTION("Player Creation")
+	{
+		//test.setup();
+		//REQUIRE(test.players.size() == 1);
+	}
+
+	SECTION("Shoot Circle Creation")
+	{
+		//test.keyPressed('z');
+		//REQUIRE(test.circles.size() > 0);
+	}
 }
 
 TEST_CASE("Player Collisions")
@@ -62,3 +73,4 @@ TEST_CASE("Player Collisions")
 
 	}
 }
+

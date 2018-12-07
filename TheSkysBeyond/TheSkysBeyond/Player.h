@@ -1,11 +1,10 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxBox2d.h"
-#include "src\ofApp.h"
 
 class Player : public ofxBox2dPolygon
 {
-	int health;
+	int health = 100;
 
 	public:
 		Player(int mouseX, int mouseY)
@@ -21,7 +20,7 @@ class Player : public ofxBox2dPolygon
 			ofxBox2dPolygon::draw(); //Parent method to draw
 		}
 
-		int takeDamage(int damage);
+		void takeDamage(int damage);
 		int currentHealth();
 		
 };

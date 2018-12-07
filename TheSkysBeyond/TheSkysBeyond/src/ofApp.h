@@ -68,7 +68,6 @@ public:
 	void createPlayer();
 	void shootCircle();
 
-
 	ofSoundPlayer soundPlayer;
 
 	float px = 0;
@@ -85,9 +84,9 @@ public:
 	int backgroundState = 0;
 	
 	int fuel = 1000;
+	int health = 100;
 
 	ofImage background;
-	ofCamera view;
 
 	ofxBox2d box2d; // the box2d world
 	ofPolyline drawing; // we draw with this first
@@ -99,9 +98,4 @@ public:
 
 	std::vector<std::shared_ptr<ofxBox2dCircle>> planets;
 	std::vector<std::shared_ptr<Player>> players;
-
-	//TODO:
-	//Implement sliding by having velocity go back (also slide background slowly as traverse through level)
-	//Add contact listener (to know when the player is hit by another object)
-	//if mouse pressed, engage booster
 };

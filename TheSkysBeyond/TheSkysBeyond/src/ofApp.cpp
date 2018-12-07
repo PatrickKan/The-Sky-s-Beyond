@@ -1,6 +1,10 @@
 #include "ofApp.h"
 #include "..//Player.h"
 
+//Build map with array of circles/points/blocks
+//Underscore for private vars
+//for each loops
+//shorten lines
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -10,36 +14,35 @@ void ofApp::setup()
 	ofBackground(ofColor(255, 255, 255));
 	ofSetLogLevel(OF_LOG_NOTICE);
 
-	background.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\images\\space_background2.png");
+	//Data loaded from bin/data
+	background.load("space_background2.png");
 	
-	soundPlayer.load("C:\\Users\\Patrick Kan\\source\\repos\\finalproject-PatrickKan\\TheSkysBeyond\\TheSkysBeyond\\TheAbyss.mp3");
+	soundPlayer.load("TheAbyss.mp3");
 	soundPlayer.play();
 	soundPlayer.setMultiPlay(true);
 
-	view.setPosition(ofPoint(mouseX, mouseY, 0));
-
+	
 	bMouseForce = false;
 	followMouse = false;
 
 	box2d.init();
 	box2d.setGravity(0, 0);
 	//box2d.createGround();
-	box2d.setFPS(100.0);
+	box2d.setFPS(60.0);
 	box2d.registerGrabbing();
 
-
+	// register the listener to get events
 	box2d.enableEvents();
-	// register the listener so that we get the events
+
 	ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
 	ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
 
 	createPlayer();
-
 }
 
 void ofApp::createPlayer()
 {
-	players.push_back(shared_ptr<Player>(new Player(ofGetWindowWidth()/20, ofGetWindowHeight()/2)));
+	players.push_back(shared_ptr<Player>(new Player(ofGetWindowWidth()/15, ofGetWindowHeight()/2)));
 	Player* player = players.back().get();
 	player->create(box2d.getWorld());
 }
@@ -49,9 +52,6 @@ void ofApp::update()
 {
 	box2d.update();
 
-	view.move(mouseX, mouseY, 0);
-
-	
 	if (bMouseForce)
 	{
 		float strength = 8.0;
@@ -162,7 +162,7 @@ float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 	//Double check to not divide by 0
 	if (distance != 0)
 	{
-		gravity = 100 * float(planetRad) / pow(distance, 2);
+		gravity = 500 * float(planetRad) / pow(distance, 2);
 	}
 	return gravity;
 }
@@ -251,14 +251,12 @@ void ofApp::draw()
 	else drawing.draw();
 
 	string info = "";
-	info += "Press [f] to toggle Mouse Force [" + ofToString(bMouseForce) + "]\n";
+	info += "Press spacebar to begin\n";
+	info += "Hold down mouse to boost. Current fuel: " + to_string(fuel) + "\n";
 	info += "Press [c] for circles\n";
 	info += "Press [b] for blocks\n";
 	info += "Press [q] for triangles\n";
 	info += "Press [=] to create a planet with gravity\n";
-	info += "Press [0] to have the first triangle follow the mouse\n";
-	info += "Use wasd controls to move first triangle\n";
-	info += "Hold down mouse to boost. Current fuel: " + to_string(fuel) + "\n";
 	info += "MouseX: " + std::to_string(mouseX) + "\n";
 	info += "MouseY: " + std::to_string(mouseY) + "\n";
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
@@ -282,8 +280,8 @@ void ofApp::keyPressed(int key)
 
 	if (key == 'b')
 	{
-		float w = ofRandom(4, 20);
-		float h = ofRandom(4, 20);
+		float w = ofRandom(10, 30);
+		float h = ofRandom(10, 30);
 		boxes.push_back(std::make_shared<ofxBox2dRect>());
 		boxes.back()->setPhysics(3.0, 0.53, 0.1);
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
@@ -364,7 +362,7 @@ void ofApp::keyPressed(int key)
 	{
 		float r = ofRandom(40, 70);		// a random radius 4px - 20px
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
-		planets.back()->setPhysics(10000.0, 0, 0.1);
+		planets.back()->setPhysics(1000000000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 
 	}
@@ -378,6 +376,7 @@ void ofApp::keyPressed(int key)
 	if (key == 't') ofToggleFullscreen();
 }
 
+//Shoots circle by placing it in front of player with an initial forward velocity
 void ofApp::shootCircle()
 {
 	auto player = players[0];
@@ -422,7 +421,10 @@ void ofApp::contactStart(ofxBox2dContactArgs &e)
 	{
 		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
 		{
+			auto player = players[0];
 			std::cout << "Contact made with player and circle\n";
+			player->takeDamage(5);
+			std::cout << "Player health: " << player->currentHealth() << "\n";
 		}
 	}
 }
