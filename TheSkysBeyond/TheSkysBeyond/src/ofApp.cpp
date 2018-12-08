@@ -118,24 +118,32 @@ void ofApp::update()
 
 		for (auto circle : circles)
 		{
-			gravity = ComputeGravity(circle->getPosition(), planet);
+			gravity = computeGravity(circle->getPosition(), planet);
 			circle->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto particle : customParticles)
 		{
-			gravity = ComputeGravity(particle->getPosition(), planet);
+			gravity = computeGravity(particle->getPosition(), planet);
 			particle->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto box : boxes)
 		{
-			gravity = ComputeGravity(box->getPosition(), planet);
+			gravity = computeGravity(box->getPosition(), planet);
 			box->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto triangle : triangles)
 		{			
-			gravity = ComputeGravity(triangle->getPosition(), planet);
+			gravity = computeGravity(triangle->getPosition(), planet);
 			triangle->addAttractionPoint(planetX, planetY, gravity);
 		}	
+	}
+
+	//Player is moving (game is in play)
+	if (followMouse)
+	{	
+		//Add planets and circles randomly during update
+		addPlanetObstacle();
+		addCircleObstacle();
 	}
 
 	// remove shapes offscreen
@@ -146,7 +154,43 @@ void ofApp::update()
 	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
-float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
+void ofApp::addCircleObstacle()
+{
+	int chance = ofRandom(1, 100);
+
+	//1% chance of creating obstacle every update
+	if (chance <= 5)
+	{
+		float rad = ofRandom(10, 20);		// a random radius 10px - 20px
+		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
+
+		circles.push_back(std::make_shared<ofxBox2dCircle>());
+		circles.back()->setPhysics(1.0, 0.53, 0.1);
+		circles.back()->setup(box2d.getWorld(), ofGetWindowWidth()-rad, randYCoord, rad);
+		circles.back()->setVelocity(-scrollVelocity, 0);
+	}
+}
+
+void ofApp::addPlanetObstacle()
+{
+	int chance = ofRandom(1, 100);
+
+	//1% chance of creating obstacle every update
+	if (chance <= 1)
+	{
+		float rad = ofRandom(40, 70);		// a random radius 4px - 20px
+		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
+
+		planets.push_back(std::make_shared<ofxBox2dCircle>());
+		planets.back()->setPhysics(1000000000.0, 0, 0.1);
+		planets.back()->setup(box2d.getWorld(), ofGetWindowWidth() - rad, randYCoord, rad);
+
+		std::cout << "Planet created\n";
+	}
+
+}
+
+float ofApp::computeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 {
 	int xPos = currPos.x;
 	int yPos = currPos.y;
@@ -162,12 +206,12 @@ float ofApp::ComputeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 	//Double check to not divide by 0
 	if (distance != 0)
 	{
-		gravity = 500 * float(planetRad) / pow(distance, 2);
+		gravity = 3000 * float(planetRad) / pow(distance, 2);
 	}
 	return gravity;
 }
 
-float ofApp::ComputeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet)
+float ofApp::computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet)
 {
 	int planetRad = planet->getRadius();
 
@@ -262,6 +306,7 @@ void ofApp::draw()
 	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
 	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
 	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
+	info += "Current Health: " + std::to_string(players[0]->currentHealth()) + "\n";
 	ofSetHexColor(0xffffff);
 	ofDrawBitmapString(info, 30, 30);
 }
@@ -286,14 +331,6 @@ void ofApp::keyPressed(int key)
 		boxes.back()->setPhysics(3.0, 0.53, 0.1);
 		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
 		boxes.back()->setVelocity(-scrollVelocity, 0);
-	}
-
-	if (key == '1')
-	{
-		float r = ofRandom(30, 50);		// a random radius 4px - 20px
-		circles.push_back(std::make_shared<ofxBox2dCircle>());
-		circles.back()->setPhysics(0.0, 0.53, 0.1);
-		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 	}
 
 	if (key == 'q')

@@ -57,16 +57,19 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 
-	float ComputeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
-	float ComputeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet);
-	void SetScrollVelocities();
-
+	float computeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
+	float computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet);
+	
 	// this is the function for contacts
 	void contactStart(ofxBox2dContactArgs &e);
 	void contactEnd(ofxBox2dContactArgs &e);
 
 	void createPlayer();
 	void shootCircle();
+
+	void addCircleObstacle();
+	void addBlockObstacle();
+	void addPlanetObstacle();
 
 	ofSoundPlayer soundPlayer;
 

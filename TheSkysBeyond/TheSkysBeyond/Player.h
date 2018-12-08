@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 
+//Player class is a triangle with health 
 class Player : public ofxBox2dPolygon
 {
 	int health = 100;
@@ -20,7 +21,7 @@ class Player : public ofxBox2dPolygon
 			ofxBox2dPolygon::draw(); //Parent method to draw
 		}
 
-		void takeDamage(int damage);
+		int takeDamage(int damage);
 		int currentHealth();
 		
 };
