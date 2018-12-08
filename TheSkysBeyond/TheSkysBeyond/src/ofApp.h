@@ -65,11 +65,15 @@ public:
 	void contactEnd(ofxBox2dContactArgs &e);
 
 	void createPlayer();
+	void createPlayerBoosters();
 	void shootCircle();
 
 	void addCircleObstacle();
 	void addBlockObstacle();
+	void addTriangleObstacle();
 	void addPlanetObstacle();
+
+
 
 	ofSoundPlayer soundPlayer;
 
@@ -80,7 +84,7 @@ public:
 	bool followMouse = false;
 	bool mouseDown = false;
 
-	float playerVelocity = 5;
+	float playerVelocity = 20;
 	float scrollVelocity = 0;
 	float playerXPos = 0;
 
@@ -97,8 +101,9 @@ public:
 	std::vector<std::shared_ptr<ofxBox2dCircle>> circles; // default box2d circles
 	std::vector<std::shared_ptr<ofxBox2dRect>> boxes; // default box2d rects
 	std::vector<std::shared_ptr<ofxBox2dPolygon>> triangles;
-	std::vector<std::shared_ptr<CustomParticle>> customParticles; // this is a custom particle the extends a cirlce
-
+	std::vector<std::shared_ptr<CustomParticle>> customParticles; // this is a custom particle that extends a circle
 	std::vector<std::shared_ptr<ofxBox2dCircle>> planets;
+
 	std::vector<std::shared_ptr<Player>> players;
+	std::vector<std::shared_ptr<ofxBox2dRect>> boosters;
 };

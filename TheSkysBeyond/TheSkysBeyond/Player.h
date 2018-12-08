@@ -8,10 +8,14 @@ class Player : public ofxBox2dPolygon
 	int health = 100;
 
 	public:
-		Player(int mouseX, int mouseY)
+		Player(int xPos, int yPos)
 		{
-			addTriangle(ofPoint(mouseX-10, mouseY + 10), ofPoint(mouseX-10, mouseY - 10), ofPoint(mouseX + 20, mouseY));
+			addTriangle(ofPoint(xPos-10, yPos + 10), ofPoint(xPos-10, yPos - 10), ofPoint(xPos + 20, yPos));
 			setPhysics(100000000.0, 0.0, 0.0);
+
+			float w = ofRandom(10, 30);
+			float h = ofRandom(10, 30);
+			
 		}
 
 		void draw()

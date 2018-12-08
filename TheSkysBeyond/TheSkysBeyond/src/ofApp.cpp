@@ -5,12 +5,13 @@
 //Underscore for private vars
 //for each loops
 //shorten lines
+//draw images for planets and spaceship
+//add small blocks to back of spaceship
 
 //--------------------------------------------------------------
 void ofApp::setup()
 {
 	ofSetVerticalSync(true);
-	//ofBackgroundHex(0xfdefc2);
 	ofBackground(ofColor(255, 255, 255));
 	ofSetLogLevel(OF_LOG_NOTICE);
 
@@ -21,7 +22,6 @@ void ofApp::setup()
 	soundPlayer.play();
 	soundPlayer.setMultiPlay(true);
 
-	
 	bMouseForce = false;
 	followMouse = false;
 
@@ -45,39 +45,30 @@ void ofApp::createPlayer()
 	players.push_back(shared_ptr<Player>(new Player(ofGetWindowWidth()/15, ofGetWindowHeight()/2)));
 	Player* player = players.back().get();
 	player->create(box2d.getWorld());
+
+	createPlayerBoosters();
+}
+
+void ofApp::createPlayerBoosters()
+{
+	float w = 4;
+	float h = 4;
+	auto player = players[0];
+	ofVec2f position = player->getPosition();
+
+	boosters.push_back(std::make_shared<ofxBox2dRect>());
+	boosters.back()->setPhysics(9999999999999.0, 0.53, 0.1);
+	boosters.back()->setup(box2d.getWorld(), position.x - 10 - 2, position.y + 4, w, h);
+
+	boosters.push_back(std::make_shared<ofxBox2dRect>());
+	boosters.back()->setPhysics(9999999999999.0, 0.53, 0.1);
+	boosters.back()->setup(box2d.getWorld(), position.x - 10 - 2, position.y - 4, w, h);
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
 	box2d.update();
-
-	if (bMouseForce)
-	{
-		float strength = 8.0;
-		float damping = 1.0f;
-		float minDis = 100;
-		for (auto i = 0; i < circles.size(); i++)
-		{
-			circles[i]->addAttractionPoint(mouseX, mouseY, strength);
-			circles[i]->setDamping(damping, damping);
-		}
-		for (auto i = 0; i < customParticles.size(); i++)
-		{
-			customParticles[i]->addAttractionPoint(mouseX, mouseY, strength);
-			customParticles[i]->setDamping(damping, damping);
-		}
-		for (auto i = 0; i < boxes.size(); i++)
-		{
-			boxes[i]->addAttractionPoint(mouseX, mouseY, strength);
-			boxes[i]->setDamping(damping, damping);
-		}
-		for (auto i = 0; i < triangles.size(); i++)
-		{
-			triangles[i]->addAttractionPoint(mouseX, mouseY, strength);
-			triangles[i]->setDamping(damping, damping);
-		}
-	}
 
 	if (followMouse && (players[0] != nullptr))
 	{
@@ -90,6 +81,11 @@ void ofApp::update()
 		float angle = atan2(yPos - mouseY, mouseX - xPos);
 		players[0]->setVelocity(0, -playerVelocity * sin(angle));
 
+		for (auto booster : boosters)
+		{
+			booster->setVelocity(0, -playerVelocity * sin(angle));
+		}
+
 		//Example moving x velocity
 		//players[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
 		
@@ -99,7 +95,7 @@ void ofApp::update()
 
 	if (mouseDown && fuel > 0)
 	{
-		playerVelocity += 0.1;
+		playerVelocity += 0.05;
 		fuel--;
 	}
 
@@ -158,8 +154,8 @@ void ofApp::addCircleObstacle()
 {
 	int chance = ofRandom(1, 100);
 
-	//1% chance of creating obstacle every update
-	if (chance <= 5)
+	//Chance of creating obstacle every update based on how fast player is going
+	if (chance <= int(scrollVelocity) / 5)
 	{
 		float rad = ofRandom(10, 20);		// a random radius 10px - 20px
 		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
@@ -175,8 +171,8 @@ void ofApp::addPlanetObstacle()
 {
 	int chance = ofRandom(1, 100);
 
-	//1% chance of creating obstacle every update
-	if (chance <= 1)
+	//Chance of creating obstacle every update based on how fast player is going
+	if (chance <= int(scrollVelocity) / 10)
 	{
 		float rad = ofRandom(40, 70);		// a random radius 4px - 20px
 		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
@@ -230,7 +226,7 @@ float ofApp::computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> pla
 	//Double check to not divide by 0
 	if (distance != 0)
 	{
-		gravity = 100 * float(planetRad) / pow(distance, 2);
+		gravity = 1000 * float(planetRad) / pow(distance, 2);
 	}
 
 	return gravity;
@@ -246,30 +242,30 @@ void ofApp::draw()
 	background.draw(int(-playerXPos) % int(4*ofGetWindowWidth()) + 2 * ofGetWindowWidth()-1, 0, 2 * ofGetWindowWidth(), ofGetWindowWidth());
 	background.draw((int(-playerXPos) % int(4 * ofGetWindowWidth())) + 4 * ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
 	
-	for (auto i = 0; i < circles.size(); i++)
+	for (auto circle : circles)
 	{
 		ofFill();
 		ofSetHexColor(0x90d4e3);
-		circles[i]->draw();
+		circle->draw();
 	}
 
-	for (auto i = 0; i < boxes.size(); i++)
+	for (auto box : boxes)
 	{
 		ofFill();
 		ofSetHexColor(0xe63b8b);
-		boxes[i]->draw();
+		box->draw();
 	}
 
-	for (auto i = 0; i < customParticles.size(); i++)
+	for (auto customParticle : customParticles)
 	{
-		customParticles[i]->draw();
+		customParticle->draw();
 	}
 
-	for (int i = 0; i < triangles.size(); i++)
+	for (auto triangle : triangles)
 	{
 		ofFill();
 		ofSetHexColor(0xEE82EE);
-		triangles[i]->draw();
+		triangle->draw();
 	}
 
 	for (auto planet : planets)
@@ -282,6 +278,11 @@ void ofApp::draw()
 	for (auto player : players)
 	{
 		player->draw();
+	}
+
+	for (auto booster : boosters)
+	{
+		booster->draw();
 	}
 
 
@@ -307,6 +308,8 @@ void ofApp::draw()
 	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
 	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
 	info += "Current Health: " + std::to_string(players[0]->currentHealth()) + "\n";
+	info += "Score: " + std::to_string(int(playerXPos)) + "\n";
+	info += "Velocity: " + std::to_string(scrollVelocity) + "\n";
 	ofSetHexColor(0xffffff);
 	ofDrawBitmapString(info, 30, 30);
 }
@@ -477,3 +480,4 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e)
 		}
 	}
 }
+

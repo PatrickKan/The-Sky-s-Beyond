@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "src//ofApp.h"
 
 int Player::takeDamage(int damage)
 {
