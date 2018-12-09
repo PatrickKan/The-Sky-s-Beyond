@@ -83,6 +83,7 @@ public:
 	void resetGame();
 
 	ofSoundPlayer soundPlayer;
+	ofSoundPlayer shootSoundPlayer;
 
 	GameState state;
 

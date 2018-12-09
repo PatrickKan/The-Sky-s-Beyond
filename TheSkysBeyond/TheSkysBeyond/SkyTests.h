@@ -46,9 +46,9 @@ TEST_CASE("Gravity Tests")
 		//Gravity set to zero instead of dividing by 0
 		REQUIRE(test.computeGravity(playerPosition, planetPosition, planetRad) == 0);
 	}
-
 }
 
+//Unable to test creating objects because there must be a valid world present
 TEST_CASE("Creating Objects")
 {
 	ofApp test;

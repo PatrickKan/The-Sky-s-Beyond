@@ -5,18 +5,18 @@
 - [x] Player's spaceship tracked by mouse
 - [X] Player's ship accelerates with mouse click and limited fuel
 - [X] Allow player to move through map horizontally with objects moving backwards
-- [ ] Add random objects in space with timer, or create levels
+- [X] Add random objects in space with timer, or create levels
 - [X] Allow player to fire objects
+- [X] Reset game when player's health reaches 0
 
 ## Collisions
 - [X] Implement contact listener to know when objects collide with player
-- [ ] Add health and optimize object densities for collisions
+- [X] Add health and optimize object densities for collisions
  
 ## Drawing and Music
 - [x] Create triangles as custom polygons
 - [X] Move background as player moves forward
 - [X] Added background music
-- [ ] Add sound effect when player is hit 
+- [X] Add sound effect when player shoots
 - [ ] Add loading screen 
 - [ ] Implement graphic for fuel
-- [ ] Add images to display spaceship and planets in game

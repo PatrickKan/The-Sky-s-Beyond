@@ -1,7 +1,8 @@
 #include "ofApp.h"
 #include "ofMain.h"
 
-#define CATCH_CONFIG_RUNNER
+//Uncomment #define to run
+//#define CATCH_CONFIG_RUNNER
 #ifdef CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include "../SkyTests.h"

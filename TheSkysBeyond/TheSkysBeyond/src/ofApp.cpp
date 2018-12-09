@@ -2,10 +2,10 @@
 #include "..//Player.h"
 #include <iomanip>
 
-//Build map with array of circles/points/blocks
 //Underscore for private vars
-//for each loops
 //draw images for planets and spaceship
+//add large weapon to shoot
+
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -22,6 +22,10 @@ void ofApp::setup()
 	soundPlayer.load("TheAbyss.mp3");
 	soundPlayer.play();
 	soundPlayer.setMultiPlay(true);
+
+	shootSoundPlayer.load("ShootSound.mp3");
+	shootSoundPlayer.setMultiPlay(true);
+	shootSoundPlayer.setVolume(0.09);
 
 	bMouseForce = false;
 	followMouse = false;
@@ -453,6 +457,8 @@ void ofApp::shootCircle()
 	shotCircles.back()->setPhysics(3.0, 0.53, 0.1);
 	shotCircles.back()->setup(box2d.getWorld(), playerX + r + 22 , playerY , r);
 	shotCircles.back()->setVelocity(60.0, 0.0);
+
+	shootSoundPlayer.play();
 }
 
 //--------------------------------------------------------------
