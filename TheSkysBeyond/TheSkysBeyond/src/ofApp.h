@@ -46,7 +46,7 @@ enum class GameState
 {
 	LOADING = 0,
 	PLAYING = 1,
-	DEATH = 2
+	DEAD = 2
 };
 
 // -------------------------------------------------
@@ -54,7 +54,7 @@ class ofApp : public ofBaseApp
 {
 
 public:
-
+	
 	void setup();
 	void update();
 	void draw();
@@ -82,9 +82,9 @@ public:
 
 	void resetGame();
 
-
-
 	ofSoundPlayer soundPlayer;
+
+	GameState state;
 
 	float px = 0;
 	float py = 0;

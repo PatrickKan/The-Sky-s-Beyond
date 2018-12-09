@@ -1,5 +1,6 @@
 #pragma once
 #include "src//ofApp.h"
+#include "Player.h"
 #include<iostream>
 #include<string>
 #include <vector>
@@ -17,7 +18,7 @@ TEST_CASE("Gravity Tests")
 		ofVec2f planetPosition(1000, 1000);
 		int planetRad = 100;
 
-		REQUIRE(test.ComputeGravity(playerPosition, planetPosition, planetRad) > 0);
+		REQUIRE(test.computeGravity(playerPosition, planetPosition, planetRad) > 0);
 	}
 
 	SECTION("Strength based only on 1/distance^2, regardless of direction")
@@ -29,8 +30,8 @@ TEST_CASE("Gravity Tests")
 
 		int planetRad = 100;
 
-		float p1Gravity = test.ComputeGravity(playerPosition, planet1Position, planetRad);
-		float p2Gravity = test.ComputeGravity(playerPosition, planet2Position, planetRad);
+		float p1Gravity = test.computeGravity(playerPosition, planet1Position, planetRad);
+		float p2Gravity = test.computeGravity(playerPosition, planet2Position, planetRad);
 
 		REQUIRE(p1Gravity == p2Gravity);
 	}
@@ -43,7 +44,7 @@ TEST_CASE("Gravity Tests")
 		int planetRad = 50;
 
 		//Gravity set to zero instead of dividing by 0
-		REQUIRE(test.ComputeGravity(playerPosition, planetPosition, planetRad) == 0);
+		REQUIRE(test.computeGravity(playerPosition, planetPosition, planetRad) == 0);
 	}
 
 }
@@ -66,11 +67,15 @@ TEST_CASE("Creating Objects")
 	}
 }
 
-TEST_CASE("Player Collisions")
+TEST_CASE("Player Tests")
 {
-	SECTION("Taking damage from collision")
-	{
+	Player testPlayer(0,0);
 
+	SECTION("Taking damage")
+	{
+		int currentHealth = testPlayer.currentHealth();
+		testPlayer.takeDamage(10);
+		REQUIRE(testPlayer.currentHealth() == currentHealth - 10);
 	}
 }
 

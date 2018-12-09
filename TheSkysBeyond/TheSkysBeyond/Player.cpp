@@ -19,3 +19,8 @@ int Player::currentHealth()
 {
 	return health;
 }
+
+void Player::resetHealth()
+{
+	health = 100;
+}

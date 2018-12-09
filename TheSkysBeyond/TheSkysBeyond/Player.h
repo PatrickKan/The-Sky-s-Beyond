@@ -15,7 +15,6 @@ class Player : public ofxBox2dPolygon
 
 			float w = ofRandom(10, 30);
 			float h = ofRandom(10, 30);
-			
 		}
 
 		void draw()
@@ -27,5 +26,6 @@ class Player : public ofxBox2dPolygon
 
 		int takeDamage(int damage);
 		int currentHealth();
+		void resetHealth();
 		
 };

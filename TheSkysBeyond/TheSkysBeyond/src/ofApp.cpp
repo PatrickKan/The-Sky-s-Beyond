@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #include "..//Player.h"
+#include <iomanip>
 
 //Build map with array of circles/points/blocks
 //Underscore for private vars
@@ -9,6 +10,8 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
+	state = GameState::LOADING;
+
 	ofSetVerticalSync(true);
 	ofBackground(ofColor(255, 255, 255));
 	ofSetLogLevel(OF_LOG_NOTICE);
@@ -68,16 +71,23 @@ void ofApp::update()
 {
 	box2d.update();
 
+	auto player = players[0];
+
 	//Continue to play music if not playing
 	if (!soundPlayer.isPlaying())
 	{
 		soundPlayer.play();
 	}
 
-	if (followMouse && (players[0] != nullptr))
+	if (player->currentHealth() <= 0)
 	{
-		int velocity = 5;
+		state = GameState::LOADING;
+		resetGame();
+	}
 
+	//Game is in play
+	if (state == GameState::PLAYING && (players[0] != nullptr))
+	{
 		ofVec2f currPos = players[0]->getPosition();
 		int xPos = currPos.x;
 		int yPos = currPos.y;
@@ -95,12 +105,16 @@ void ofApp::update()
 		
 		scrollVelocity = playerVelocity;
 		playerXPos += scrollVelocity * 0.1;
-	}
 
-	if (mouseDown && fuel > 0)
-	{
-		playerVelocity += 0.05;
-		fuel--;
+		if (mouseDown && fuel > 0)
+		{
+			playerVelocity += 0.05;
+			fuel--;
+		}
+
+		//Add planets and circles randomly during update
+		addPlanetObstacle();
+		addCircleObstacle();
 	}
 
 	//Planet gravity
@@ -138,21 +152,13 @@ void ofApp::update()
 		}	
 	}
 
-	//Player is moving (game is in play)
-	if (followMouse)
-	{	
-		//Add planets and circles randomly during update
-		addPlanetObstacle();
-		addCircleObstacle();
-		//addBlockObstacle();
-	}
-
 	// remove shapes offscreen
 	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(shotCircles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
 void ofApp::addCircleObstacle()
@@ -252,7 +258,6 @@ float ofApp::computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> pla
 		gravity = 1000 * float(planetRad) / pow(distance, 2);
 	}
 
-	return gravity;
 	return gravity;
 }
 
@@ -412,34 +417,14 @@ void ofApp::keyPressed(int key)
 		circles.back()->setVelocity(5.0, 0.0);
 	}
 
-	if (key == 'w')
+	if (key == ' ') //Space bar used to initiate game, follow mouse up and down related to scroll velocity
 	{
-		triangles[0]->setVelocity(0, -5);
-	}
-
-	if (key == 'a')
-	{
-		triangles[0]->setVelocity(-5, 0);
-	}
-
-	if (key == 's')
-	{
-		triangles[0]->setVelocity(0, 5);
-	}
-
-	if (key == 'd')
-	{
-		triangles[0]->setVelocity(5, 0);
-	}
-
-	if (key == ' ') //Follow mouse with constant velocity (currently set at 5)
-	{
-		followMouse = !followMouse;
+		state = GameState::PLAYING;
 	}
 
 	if (key == '=') //Create a planet with gravity and varying size
 	{
-		float r = ofRandom(40, 70);		// a random radius 4px - 20px
+		float r = ofRandom(50, 70);		
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
 		planets.back()->setPhysics(100000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
@@ -451,7 +436,6 @@ void ofApp::keyPressed(int key)
 		shootCircle();
 	}
 
-	if (key == 'f') bMouseForce = !bMouseForce;
 	if (key == 't') ofToggleFullscreen();
 }
 
@@ -531,4 +515,10 @@ void ofApp::resetGame()
 	boosters.erase(boosters.begin(), boosters.end());
 	createPlayerBoosters();
 	shotCircles.erase(shotCircles.begin(), shotCircles.end());
+
+	scrollVelocity = 0;
+	playerVelocity = 20;
+	playerXPos = 0;
+	fuel = 1000;
+	players[0]->resetHealth();
 }
