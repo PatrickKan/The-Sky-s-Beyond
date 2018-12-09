@@ -4,9 +4,7 @@
 //Build map with array of circles/points/blocks
 //Underscore for private vars
 //for each loops
-//shorten lines
 //draw images for planets and spaceship
-//add small blocks to back of spaceship
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -57,11 +55,11 @@ void ofApp::createPlayerBoosters()
 	ofVec2f position = player->getPosition();
 
 	boosters.push_back(std::make_shared<ofxBox2dRect>());
-	boosters.back()->setPhysics(9999999999999.0, 0.53, 0.1);
+	boosters.back()->setPhysics(10000000000000000000000000.0, 0.53, 0.1);
 	boosters.back()->setup(box2d.getWorld(), position.x - 10 - 2, position.y + 4, w, h);
 
 	boosters.push_back(std::make_shared<ofxBox2dRect>());
-	boosters.back()->setPhysics(9999999999999.0, 0.53, 0.1);
+	boosters.back()->setPhysics(10000000000000000000000000.0, 0.53, 0.1);
 	boosters.back()->setup(box2d.getWorld(), position.x - 10 - 2, position.y - 4, w, h);
 }
 
@@ -69,6 +67,12 @@ void ofApp::createPlayerBoosters()
 void ofApp::update()
 {
 	box2d.update();
+
+	//Continue to play music if not playing
+	if (!soundPlayer.isPlaying())
+	{
+		soundPlayer.play();
+	}
 
 	if (followMouse && (players[0] != nullptr))
 	{
@@ -140,6 +144,7 @@ void ofApp::update()
 		//Add planets and circles randomly during update
 		addPlanetObstacle();
 		addCircleObstacle();
+		//addBlockObstacle();
 	}
 
 	// remove shapes offscreen
@@ -152,10 +157,10 @@ void ofApp::update()
 
 void ofApp::addCircleObstacle()
 {
-	int chance = ofRandom(1, 100);
+	float chance = ofRandom(1, 100);
 
 	//Chance of creating obstacle every update based on how fast player is going
-	if (chance <= int(scrollVelocity) / 5)
+	if (chance <= scrollVelocity / 5)
 	{
 		float rad = ofRandom(10, 20);		// a random radius 10px - 20px
 		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
@@ -167,14 +172,32 @@ void ofApp::addCircleObstacle()
 	}
 }
 
-void ofApp::addPlanetObstacle()
+void ofApp::addBlockObstacle()
 {
-	int chance = ofRandom(1, 100);
+	float chance = ofRandom(1, 100);
 
 	//Chance of creating obstacle every update based on how fast player is going
-	if (chance <= int(scrollVelocity) / 10)
+	if (chance <= scrollVelocity / 5)
 	{
-		float rad = ofRandom(40, 70);		// a random radius 4px - 20px
+		float width = ofRandom(10, 20);		
+		float height = ofRandom(10, 20);
+		int randYCoord = ofRandom(0 + height, ofGetWindowHeight() - height);
+
+		boxes.push_back(std::make_shared<ofxBox2dRect>());
+		boxes.back()->setPhysics(3.0, 0.53, 0.1);
+		boxes.back()->setup(box2d.getWorld(), ofGetWindowWidth() - width, randYCoord, width, height);
+		boxes.back()->setVelocity(-scrollVelocity, 0);
+	}
+}
+
+void ofApp::addPlanetObstacle()
+{
+	float chance = ofRandom(1, 100);
+
+	//Chance of creating obstacle every update based on how fast player is going
+	if (chance <= scrollVelocity / 15)
+	{
+		float rad = ofRandom(50, 70);		// a random radius 4px - 20px
 		int randYCoord = ofRandom(0 + rad, ofGetWindowHeight() - rad);
 
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
@@ -238,9 +261,13 @@ float ofApp::computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> pla
 void ofApp::draw()
 {
 	//Three backgrounds drawn of the same image to simulate an infinite scrolling background
-	background.draw((int(-playerXPos) % int(4*ofGetWindowWidth())), 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
-	background.draw(int(-playerXPos) % int(4*ofGetWindowWidth()) + 2 * ofGetWindowWidth()-1, 0, 2 * ofGetWindowWidth(), ofGetWindowWidth());
-	background.draw((int(-playerXPos) % int(4 * ofGetWindowWidth())) + 4 * ofGetWindowWidth() - 1, 0, 2 * ofGetWindowWidth(), ofGetWindowHeight());
+
+	int windowWidth = ofGetWindowWidth();
+	int imageXPos = (int(-playerXPos) % int(4 * ofGetWindowWidth()));
+
+	background.draw(imageXPos, 0, 2 * windowWidth, ofGetWindowHeight());
+	background.draw(imageXPos + (2 * windowWidth) - 1, 0, 2 * windowWidth, ofGetWindowHeight());
+	background.draw(imageXPos + (4 * windowWidth) - 1, 0, 2 * windowWidth, ofGetWindowHeight());
 	
 	for (auto circle : circles)
 	{
@@ -283,6 +310,13 @@ void ofApp::draw()
 	for (auto booster : boosters)
 	{
 		booster->draw();
+	}
+
+	for (auto shotCircle : shotCircles)
+	{
+		ofFill();
+		ofSetHexColor(0xffae19);
+		shotCircle->draw();
 	}
 
 
@@ -354,6 +388,11 @@ void ofApp::keyPressed(int key)
 		player->create(box2d.getWorld());
 	}
 
+	if (key == '1')
+	{
+		resetGame();
+	}
+
 	if (key == 'p')
 	{
 		auto tri = std::make_shared<ofxBox2dPolygon>();
@@ -402,7 +441,7 @@ void ofApp::keyPressed(int key)
 	{
 		float r = ofRandom(40, 70);		// a random radius 4px - 20px
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
-		planets.back()->setPhysics(1000000000.0, 0, 0.1);
+		planets.back()->setPhysics(100000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
 
 	}
@@ -426,10 +465,10 @@ void ofApp::shootCircle()
 	int playerY = playerPos.y;
 
 	float r = 10;		// a random radius 4px - 20px
-	circles.push_back(std::make_shared<ofxBox2dCircle>());
-	circles.back()->setPhysics(10.0, 0.53, 0.1);
-	circles.back()->setup(box2d.getWorld(), playerX + r + 22 , playerY , r);
-	circles.back()->setVelocity(50.0, 0.0);
+	shotCircles.push_back(std::make_shared<ofxBox2dCircle>());
+	shotCircles.back()->setPhysics(3.0, 0.53, 0.1);
+	shotCircles.back()->setup(box2d.getWorld(), playerX + r + 22 , playerY , r);
+	shotCircles.back()->setVelocity(60.0, 0.0);
 }
 
 //--------------------------------------------------------------
@@ -455,8 +494,6 @@ void ofApp::mouseReleased(int x, int y, int button)
 //--------------------------------------------------------------
 void ofApp::contactStart(ofxBox2dContactArgs &e)
 {
-	std::cout << "Entering contact start";
-
 	if (e.a != NULL && e.b != NULL)
 	{
 		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
@@ -481,3 +518,17 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e)
 	}
 }
 
+void ofApp::resetGame()
+{
+	std::cout << "Entering reset game\n";
+
+	auto world = box2d.getWorld();
+
+	circles.erase(circles.begin(), circles.end());
+	planets.erase(planets.begin(), planets.end());
+	players.erase(players.begin(), players.end());
+	createPlayer();
+	boosters.erase(boosters.begin(), boosters.end());
+	createPlayerBoosters();
+	shotCircles.erase(shotCircles.begin(), shotCircles.end());
+}

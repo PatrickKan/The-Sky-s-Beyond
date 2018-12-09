@@ -42,6 +42,13 @@ public:
 	int GetGravity();
 };
 
+enum class GameState
+{
+	LOADING = 0,
+	PLAYING = 1,
+	DEATH = 2
+};
+
 // -------------------------------------------------
 class ofApp : public ofBaseApp
 {
@@ -72,6 +79,8 @@ public:
 	void addBlockObstacle();
 	void addTriangleObstacle();
 	void addPlanetObstacle();
+
+	void resetGame();
 
 
 
@@ -106,4 +115,5 @@ public:
 
 	std::vector<std::shared_ptr<Player>> players;
 	std::vector<std::shared_ptr<ofxBox2dRect>> boosters;
+	std::vector<std::shared_ptr<ofxBox2dCircle>> shotCircles;
 };
