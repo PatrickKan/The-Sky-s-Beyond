@@ -321,11 +321,13 @@ void ofApp::draw()
 		scoreFont.drawString("The Sky's Beyond", ofGetWindowWidth() / 3, ofGetWindowHeight() / 5);
 
 		string info = "";
-		info += "Press spacebar to begin\n";		
-		info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
+		info += "Dodge the obstacles in space! The ship follows your mouse.\n";
 		info += "Press z to shoot missiles (100 available)\n";
 		info += "Press x to shoot large cannons (2 available)\n";
-		info += "Your last score: " + std::to_string(prevScore);
+		info += "Press spacebar to begin\n\n\n";
+		info += "Your last score: " + std::to_string(prevScore) + "\n";
+		info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
+		
 		infoFont.drawString(info, ofGetWindowWidth() / 3, ofGetWindowHeight() / 3);
 	}
 	else if (state == GameState::PLAYING)
