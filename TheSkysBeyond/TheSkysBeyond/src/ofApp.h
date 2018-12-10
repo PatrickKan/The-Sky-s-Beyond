@@ -64,6 +64,9 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 
+	void playGame();
+
+	void createGravity();
 	float computeGravity(ofVec2f position, ofVec2f planet_pos, int planet_rad);
 	float computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet);
 	
@@ -73,7 +76,7 @@ public:
 
 	void createPlayer();
 	void createPlayerBoosters();
-	void shootCircle();
+	void shootCircle(float density, int velocity, int radius);
 
 	void addCircleObstacle();
 	void addBlockObstacle();
@@ -86,6 +89,10 @@ public:
 	ofSoundPlayer shootSoundPlayer;
 
 	GameState state;
+
+	//Font to display text
+	ofTrueTypeFont infoFont;
+	ofTrueTypeFont scoreFont;
 
 	float px = 0;
 	float py = 0;
@@ -100,8 +107,11 @@ public:
 
 	int backgroundState = 0;
 	
-	int fuel = 1000;
-	int health = 100;
+	int ammo = 100;
+	int cannonAmmo = 2;
+
+	int updates = 0;
+	int prevScore = 0;
 
 	ofImage background;
 
@@ -117,4 +127,10 @@ public:
 	std::vector<std::shared_ptr<Player>> players;
 	std::vector<std::shared_ptr<ofxBox2dRect>> boosters;
 	std::vector<std::shared_ptr<ofxBox2dCircle>> shotCircles;
+	std::vector<std::shared_ptr<ofxBox2dCircle>> cannons;
 };
+
+
+//Taken from https://www.geeksforgeeks.org/rounding-floating-point-number-two-decimal-places-c-c/
+//to round a float to 2 decimal palces
+float roundToTwo(float var);

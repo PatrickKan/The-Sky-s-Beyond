@@ -1,10 +1,12 @@
 #include "ofApp.h"
 #include "..//Player.h"
+#include <iostream>
 #include <iomanip>
 
 //Underscore for private vars
 //draw images for planets and spaceship
 //add large weapon to shoot
+//fix rapid fire
 
 
 //--------------------------------------------------------------
@@ -27,12 +29,11 @@ void ofApp::setup()
 	shootSoundPlayer.setMultiPlay(true);
 	shootSoundPlayer.setVolume(0.09);
 
-	bMouseForce = false;
-	followMouse = false;
+	infoFont.load("Roboto-Regular.ttf", 16);
+	scoreFont.load("Roboto-Regular.ttf", 20);
 
 	box2d.init();
 	box2d.setGravity(0, 0);
-	//box2d.createGround();
 	box2d.setFPS(60.0);
 	box2d.registerGrabbing();
 
@@ -86,41 +87,59 @@ void ofApp::update()
 	if (player->currentHealth() <= 0)
 	{
 		state = GameState::LOADING;
+		prevScore = int(playerXPos);
 		resetGame();
 	}
 
 	//Game is in play
 	if (state == GameState::PLAYING && (players[0] != nullptr))
 	{
-		ofVec2f currPos = players[0]->getPosition();
-		int xPos = currPos.x;
-		int yPos = currPos.y;
-
-		float angle = atan2(yPos - mouseY, mouseX - xPos);
-		players[0]->setVelocity(0, -playerVelocity * sin(angle));
-
-		for (auto booster : boosters)
-		{
-			booster->setVelocity(0, -playerVelocity * sin(angle));
-		}
-
-		//Example moving x velocity
-		//players[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
-		
-		scrollVelocity = playerVelocity;
-		playerXPos += scrollVelocity * 0.1;
-
-		if (mouseDown && fuel > 0)
-		{
-			playerVelocity += 0.05;
-			fuel--;
-		}
-
-		//Add planets and circles randomly during update
-		addPlanetObstacle();
-		addCircleObstacle();
+		playGame();
+		updates++;
 	}
 
+	createGravity();
+
+	// remove shapes offscreen
+	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
+	ofRemove(shotCircles, ofxBox2dBaseShape::shouldRemoveOffScreen);
+}
+
+void ofApp::playGame()
+{
+	
+	ofVec2f currPos = players[0]->getPosition();
+	int xPos = currPos.x;
+	int yPos = currPos.y;
+
+	float angle = atan2(yPos - mouseY, mouseX - xPos);
+	players[0]->setVelocity(0, -playerVelocity * sin(angle));
+
+	for (auto booster : boosters)
+	{
+		booster->setVelocity(0, -playerVelocity * sin(angle));
+	}
+
+	//Example moving x velocity
+	//players[0]->setVelocity(playerVelocity*cos(angle), -playerVelocity * sin(angle));
+
+	scrollVelocity = playerVelocity;
+	playerXPos += scrollVelocity * 0.1;
+
+	//Player moves faster as game progresses
+	playerVelocity += 0.05/(1+exp(updates/1000));
+	
+	//Add planets and circles randomly during update
+	addPlanetObstacle();
+	addCircleObstacle();
+}
+
+void ofApp::createGravity()
+{
 	//Planet gravity
 	//For planet force, gravity should be equivalent to 1/r^2, but not too fast when approaching zero (check w/ if for r > 0.01)
 	for (auto planet : planets)
@@ -150,19 +169,11 @@ void ofApp::update()
 			box->addAttractionPoint(planetX, planetY, gravity);
 		}
 		for (auto triangle : triangles)
-		{			
+		{
 			gravity = computeGravity(triangle->getPosition(), planet);
 			triangle->addAttractionPoint(planetX, planetY, gravity);
-		}	
+		}
 	}
-
-	// remove shapes offscreen
-	ofRemove(boxes, ofxBox2dBaseShape::shouldRemoveOffScreen);
-	ofRemove(circles, ofxBox2dBaseShape::shouldRemoveOffScreen);
-	ofRemove(customParticles, ofxBox2dBaseShape::shouldRemoveOffScreen);
-	ofRemove(triangles, ofxBox2dBaseShape::shouldRemoveOffScreen);
-	ofRemove(planets, ofxBox2dBaseShape::shouldRemoveOffScreen);
-	ofRemove(shotCircles, ofxBox2dBaseShape::shouldRemoveOffScreen);
 }
 
 void ofApp::addCircleObstacle()
@@ -277,7 +288,7 @@ void ofApp::draw()
 	background.draw(imageXPos, 0, 2 * windowWidth, ofGetWindowHeight());
 	background.draw(imageXPos + (2 * windowWidth) - 1, 0, 2 * windowWidth, ofGetWindowHeight());
 	background.draw(imageXPos + (4 * windowWidth) - 1, 0, 2 * windowWidth, ofGetWindowHeight());
-	
+
 	for (auto circle : circles)
 	{
 		ofFill();
@@ -327,34 +338,33 @@ void ofApp::draw()
 		ofSetHexColor(0xffae19);
 		shotCircle->draw();
 	}
-
-
-	ofNoFill();
-	ofSetHexColor(0xffe6e6);
-	if (drawing.size() == 0)
-	{
-		edgeLine.updateShape();
-		edgeLine.draw();
-	}
-	else drawing.draw();
-
-	string info = "";
-	info += "Press spacebar to begin\n";
-	info += "Hold down mouse to boost. Current fuel: " + to_string(fuel) + "\n";
-	info += "Press [c] for circles\n";
-	info += "Press [b] for blocks\n";
-	info += "Press [q] for triangles\n";
-	info += "Press [=] to create a planet with gravity\n";
-	info += "MouseX: " + std::to_string(mouseX) + "\n";
-	info += "MouseY: " + std::to_string(mouseY) + "\n";
-	info += "Total Bodies: " + ofToString(box2d.getBodyCount()) + "\n";
-	info += "Total Joints: " + ofToString(box2d.getJointCount()) + "\n\n";
-	info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
-	info += "Current Health: " + std::to_string(players[0]->currentHealth()) + "\n";
-	info += "Score: " + std::to_string(int(playerXPos)) + "\n";
-	info += "Velocity: " + std::to_string(scrollVelocity) + "\n";
+	
 	ofSetHexColor(0xffffff);
-	ofDrawBitmapString(info, 30, 30);
+
+	if (state == GameState::LOADING)
+	{
+		scoreFont.drawString("The Sky's Beyond", ofGetWindowWidth() / 3, ofGetWindowHeight() / 5);
+
+		string info = "";
+		info += "Press spacebar to begin\n";		
+		info += "FPS: " + ofToString(ofGetFrameRate()) + "\n";
+		info += "Press z to shoot missiles (100 available)\n";
+		info += "Press x to shoot large cannons (2 available)\n";
+		info += "Your last score: " + std::to_string(prevScore);
+		infoFont.drawString(info, ofGetWindowWidth() / 3, ofGetWindowHeight() / 3);
+	}
+	else if (state == GameState::PLAYING)
+	{
+		infoFont.drawString("FPS: " + ofToString(ofGetFrameRate()) + "\n", ofGetWindowWidth() / 10, 9 * ofGetWindowHeight() / 10);
+		scoreFont.drawString("Score: " + std::to_string(int(playerXPos)), 8 * ofGetWindowWidth() / 10, ofGetWindowHeight() / 10);
+
+		string info = "";
+		info += "Current Health: " + std::to_string(players[0]->currentHealth()) + "\n";
+		info += "Current Velocity: " + std::to_string(playerVelocity) + "\n";
+		info += "Current Ammo: " + std::to_string(ammo) + "\n";
+		info += "Cannons available: " + std::to_string(cannonAmmo);
+		scoreFont.drawString(info, ofGetWindowWidth() / 10, ofGetWindowHeight() / 10);
+	}
 }
 
 //--------------------------------------------------------------
@@ -435,28 +445,35 @@ void ofApp::keyPressed(int key)
 
 	}
 
-	if (key == 'z')
+	if (key == 'z' && state == GameState::PLAYING && ammo > 0)
 	{
-		shootCircle();
+		shootCircle(3, 60, 10);
+		ammo--;
+	}
+
+	if (key == 'x' && state == GameState::PLAYING && cannonAmmo > 0)
+	{
+		shootCircle(100000000000000000.0, 75, 50);
+		cannonAmmo--;
+		
 	}
 
 	if (key == 't') ofToggleFullscreen();
 }
 
 //Shoots circle by placing it in front of player with an initial forward velocity
-void ofApp::shootCircle()
+void ofApp::shootCircle(float density, int velocity, int radius)
 {
 	auto player = players[0];
 
 	ofVec2f playerPos = player->getPosition();
 	int playerX = playerPos.x;
 	int playerY = playerPos.y;
-
-	float r = 10;		// a random radius 4px - 20px
+		
 	shotCircles.push_back(std::make_shared<ofxBox2dCircle>());
-	shotCircles.back()->setPhysics(3.0, 0.53, 0.1);
-	shotCircles.back()->setup(box2d.getWorld(), playerX + r + 22 , playerY , r);
-	shotCircles.back()->setVelocity(60.0, 0.0);
+	shotCircles.back()->setPhysics(density, 0, 0);
+	shotCircles.back()->setup(box2d.getWorld(), playerX + radius + 22 , playerY , radius);
+	shotCircles.back()->setVelocity(velocity, 0.0);
 
 	shootSoundPlayer.play();
 }
@@ -510,8 +527,6 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e)
 
 void ofApp::resetGame()
 {
-	std::cout << "Entering reset game\n";
-
 	auto world = box2d.getWorld();
 
 	circles.erase(circles.begin(), circles.end());
@@ -525,6 +540,26 @@ void ofApp::resetGame()
 	scrollVelocity = 0;
 	playerVelocity = 20;
 	playerXPos = 0;
-	fuel = 1000;
 	players[0]->resetHealth();
+	updates = 0;
+	ammo = 100;
+	cannonAmmo = 2;
+}
+
+//Taken from https://www.geeksforgeeks.org/rounding-floating-point-number-two-decimal-places-c-c/
+//to round a float to 2 decimal palces
+float roundToTwo(float var)
+{
+	// we use array of chars to store number 
+	// as a string. 
+	char str[40];
+
+	// Print in string the value of var  
+	// with two decimal point 
+	sprintf(str, "%.2f", var);
+
+	// scan string value in var  
+	sscanf(str, "%f", &var);
+
+	return var;
 }
