@@ -6,7 +6,7 @@
 - [X] Player's ship accelerates with mouse click and limited fuel
 - [X] Allow player to move through map horizontally with objects moving backwards
 - [X] Add random objects in space with timer, or create levels
-- [X] Allow player to fire objects
+- [X] Allow player to fire mutliple weapons
 - [X] Reset game when player's health reaches 0
 
 ## Collisions
@@ -18,5 +18,4 @@
 - [X] Move background as player moves forward
 - [X] Added background music
 - [X] Add sound effect when player shoots
-- [ ] Add loading screen 
-- [ ] Implement graphic for fuel
+- [X] Add loading screen 
