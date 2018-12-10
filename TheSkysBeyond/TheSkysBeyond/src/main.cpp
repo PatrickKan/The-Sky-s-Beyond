@@ -1,7 +1,7 @@
 #include "ofApp.h"
 #include "ofMain.h"
 
-//Uncomment #define to run
+//Uncomment #define to run tests
 //#define CATCH_CONFIG_RUNNER
 #ifdef CATCH_CONFIG_RUNNER
 #include "catch.hpp"

@@ -27,21 +27,6 @@ public:
 
 };
 
-class Planet : public ofxBox2dCircle
-{
-	int radius;
-	int gravity;
-
-public:
-
-	Planet()
-	{
-
-	}
-
-	int GetGravity();
-};
-
 enum class GameState
 {
 	LOADING = 0,
@@ -79,8 +64,6 @@ public:
 	void shootCircle(float density, int velocity, int radius);
 
 	void addCircleObstacle();
-	void addBlockObstacle();
-	void addTriangleObstacle();
 	void addPlanetObstacle();
 
 	void resetGame();
@@ -93,13 +76,6 @@ public:
 	//Font to display text
 	ofTrueTypeFont infoFont;
 	ofTrueTypeFont scoreFont;
-
-	float px = 0;
-	float py = 0;
-	bool bDrawLines = false;
-	bool bMouseForce = false;
-	bool followMouse = false;
-	bool mouseDown = false;
 
 	float playerVelocity = 20;
 	float scrollVelocity = 0;

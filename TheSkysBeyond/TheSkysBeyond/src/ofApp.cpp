@@ -3,12 +3,6 @@
 #include <iostream>
 #include <iomanip>
 
-//Underscore for private vars
-//draw images for planets and spaceship
-//add large weapon to shoot
-//fix rapid fire
-
-
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -193,24 +187,6 @@ void ofApp::addCircleObstacle()
 	}
 }
 
-void ofApp::addBlockObstacle()
-{
-	float chance = ofRandom(1, 100);
-
-	//Chance of creating obstacle every update based on how fast player is going
-	if (chance <= scrollVelocity / 5)
-	{
-		float width = ofRandom(10, 20);		
-		float height = ofRandom(10, 20);
-		int randYCoord = ofRandom(0 + height, ofGetWindowHeight() - height);
-
-		boxes.push_back(std::make_shared<ofxBox2dRect>());
-		boxes.back()->setPhysics(3.0, 0.53, 0.1);
-		boxes.back()->setup(box2d.getWorld(), ofGetWindowWidth() - width, randYCoord, width, height);
-		boxes.back()->setVelocity(-scrollVelocity, 0);
-	}
-}
-
 void ofApp::addPlanetObstacle()
 {
 	float chance = ofRandom(1, 100);
@@ -224,12 +200,10 @@ void ofApp::addPlanetObstacle()
 		planets.push_back(std::make_shared<ofxBox2dCircle>());
 		planets.back()->setPhysics(1000000000.0, 0, 0.1);
 		planets.back()->setup(box2d.getWorld(), ofGetWindowWidth() - rad, randYCoord, rad);
-
-		std::cout << "Planet created\n";
 	}
-
 }
 
+//Takes in planet position and radius as parameter
 float ofApp::computeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 {
 	int xPos = currPos.x;
@@ -251,6 +225,7 @@ float ofApp::computeGravity(ofVec2f currPos, ofVec2f planetPos, int planetRad)
 	return gravity;
 }
 
+//Takes in planet as parameter
 float ofApp::computeGravity(ofVec2f currPos, std::shared_ptr<ofxBox2dCircle> planet)
 {
 	int planetRad = planet->getRadius();
@@ -370,67 +345,6 @@ void ofApp::draw()
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key)
 {
-	if (key == 'c')
-	{
-		float r = ofRandom(4, 20);		// a random radius 4px - 20px
-		circles.push_back(std::make_shared<ofxBox2dCircle>());
-		circles.back()->setPhysics(1.0, 0.53, 0.1);
-		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-		circles.back()->setVelocity(-scrollVelocity, 0);
-	}
-
-	if (key == 'b')
-	{
-		float w = ofRandom(10, 30);
-		float h = ofRandom(10, 30);
-		boxes.push_back(std::make_shared<ofxBox2dRect>());
-		boxes.back()->setPhysics(3.0, 0.53, 0.1);
-		boxes.back()->setup(box2d.getWorld(), mouseX, mouseY, w, h);
-		boxes.back()->setVelocity(-scrollVelocity, 0);
-	}
-
-	if (key == 'q')
-	{
-		auto tri = std::make_shared<ofxBox2dPolygon>();
-		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		tri->setPhysics(100.0, 0.7, 1.0);
-		tri->create(box2d.getWorld());
-
-		triangles.push_back(tri);
-		tri->setVelocity(-scrollVelocity, 0);
-	}
-
-	if (key == '-')
-	{
-		players.push_back(shared_ptr<Player>(new Player(mouseX,mouseY)));
-		Player* player = players.back().get();
-		player->create(box2d.getWorld());
-	}
-
-	if (key == '1')
-	{
-		resetGame();
-	}
-
-	if (key == 'p')
-	{
-		auto tri = std::make_shared<ofxBox2dPolygon>();
-		tri->addTriangle(ofPoint(mouseX - 10, mouseY), ofPoint(mouseX, mouseY - 10), ofPoint(mouseX + 10, mouseY));
-		tri->setPhysics(1000.0, 0.7, 1.0);
-		tri->create(box2d.getWorld());
-		tri->addForce(ofVec2f(0, 1), 50);
-		triangles.push_back(tri);
-	}
-
-	if (key == 'm')
-	{
-		float r = 20;		// a random radius 4px - 20px
-		circles.push_back(std::make_shared<ofxBox2dCircle>());
-		circles.back()->setPhysics(3.0, 0.53, 0.1);
-		circles.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-		circles.back()->setVelocity(5.0, 0.0);
-	}
-
 	if (key == ' ') //Space bar used to initiate game, follow mouse up and down related to scroll velocity
 	{
 		state = GameState::PLAYING;
@@ -481,24 +395,22 @@ void ofApp::shootCircle(float density, int velocity, int radius)
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button)
 {
-	//drawing.addVertex(x, y);
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button)
 {
-	mouseDown = true;
 
-	std::cout << "Mouse is being pressed\n";
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button)
 {
-	mouseDown = false;
+
 }
 
-//--------------------------------------------------------------
+//Take damage if contact between player and circle
 void ofApp::contactStart(ofxBox2dContactArgs &e)
 {
 	if (e.a != NULL && e.b != NULL)
@@ -506,9 +418,7 @@ void ofApp::contactStart(ofxBox2dContactArgs &e)
 		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
 		{
 			auto player = players[0];
-			std::cout << "Contact made with player and circle\n";
 			player->takeDamage(5);
-			std::cout << "Player health: " << player->currentHealth() << "\n";
 		}
 	}
 }
@@ -520,7 +430,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e)
 	{
 		if (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle)
 		{
-			std::cout << "Contact made with player and circle\n";
+			//Can add functionality when contact is ended if desired
 		}
 	}
 }
