@@ -82,6 +82,7 @@ void ofApp::update()
 	{
 		state = GameState::LOADING;
 		prevScore = int(playerXPos);
+		soundPlayer.stop();
 		resetGame();
 	}
 
