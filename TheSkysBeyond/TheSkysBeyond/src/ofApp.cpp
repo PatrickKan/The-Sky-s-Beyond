@@ -353,15 +353,6 @@ void ofApp::keyPressed(int key)
 		state = GameState::PLAYING;
 	}
 
-	if (key == '=') //Create a planet with gravity and varying size
-	{
-		float r = ofRandom(50, 70);		
-		planets.push_back(std::make_shared<ofxBox2dCircle>());
-		planets.back()->setPhysics(100000.0, 0, 0.1);
-		planets.back()->setup(box2d.getWorld(), mouseX, mouseY, r);
-
-	}
-
 	if (key == 'z' && state == GameState::PLAYING && ammo > 0)
 	{
 		shootCircle(3, 60, 10);
